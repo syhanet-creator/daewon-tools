@@ -1,6 +1,6 @@
 // 앱 껍데기만 캐시 (API 호출은 항상 네트워크)
-const CACHE = 'photo-ledger-v3';
-const SHELL = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
+const CACHE = 'photo-ledger-v4';
+const SHELL = ['/', '/index.html', '/manifest.json', '/icon-192.png', '/icon-512.png', '/logo.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
