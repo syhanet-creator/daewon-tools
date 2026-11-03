@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f4e79">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>사진대지</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#1c2733;--sub:#667585;--pri:#1f4e79;--warn:#c0392b;--ok:#1e8449;--line:#dde3ea}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);padding-bottom:90px}
+header{background:var(--pri);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:18px}
+header button{background:transparent;border:1px solid #fff6;color:#fff;border-radius:8px;padding:6px 10px;font-size:13px}
+.bar{display:flex;gap:8px;padding:12px}
+.bar label,.bar button{flex:1;text-align:center;padding:14px 8px;border-radius:10px;border:0;font-size:15px;font-weight:700;background:var(--pri);color:#fff}
+.bar label.alt{background:#fff;color:var(--pri);border:2px solid var(--pri)}
+.bar input{display:none}
+.status{margin:0 12px;font-size:13px;color:var(--sub)}
+.site{margin:14px 12px 4px;display:flex;gap:8px;align-items:center}
+.site input{flex:1;font-size:16px;font-weight:700;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff}
+.site small{color:var(--sub);white-space:nowrap}
+.trade{margin:10px 12px 4px;font-size:13px;font-weight:700;color:var(--pri)}
+.card{background:var(--card);margin:6px 12px;border-radius:12px;padding:10px;display:flex;gap:10px;box-shadow:0 1px 2px #0001}
+.card img{width:96px;height:96px;object-fit:cover;border-radius:8px;flex:none;background:#ddd}
+.card .body{flex:1;min-width:0}
+.card .meta{font-size:12px;color:var(--sub);margin-bottom:4px}
+.card select{font-size:14px;padding:4px;border:1px solid var(--line);border-radius:6px;max-width:100%}
+.card textarea{width:100%;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:5px;margin-top:4px;resize:vertical;min-height:38px;font-family:inherit}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.badge{display:inline-block;font-size:11px;padding:2px 6px;border-radius:10px;background:#eef2f6;color:var(--sub)}
+.badge.warn{background:#fdecea;color:var(--warn)}
+.badge.ok{background:#e6f4ea;color:var(--ok)}
+.del{background:none;border:0;color:var(--warn);font-size:12px;padding:2px 0}
+.fab{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;gap:8px;z-index:6}
+.fab button{flex:1;padding:15px;border-radius:12px;border:0;font-size:16px;font-weight:800;background:var(--ok);color:#fff;box-shadow:0 3px 8px #0003}
+.fab button.sec{background:#fff;color:var(--ink);flex:0 0 30%;border:1px solid var(--line)}
+.empty{text-align:center;color:var(--sub);padding:50px 20px;line-height:1.7}
+dialog{border:0;border-radius:14px;padding:18px;width:min(92vw,420px)}
+dialog label{display:block;font-size:13px;color:var(--sub);margin-top:10px}
+dialog input,dialog select{width:100%;font-size:16px;padding:8px;border:1px solid var(--line);border-radius:8px;margin-top:4px}
+dialog .actions{display:flex;gap:8px;margin-top:16px}
+dialog .actions button{flex:1;padding:11px;border-radius:8px;border:0;font-size:15px;background:var(--pri);color:#fff}
+dialog .actions button.g{background:#e9edf1;color:var(--ink)}
+
+/* ---- 인쇄(PDF) ---- */
+#print-root{display:none}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff;padding:0}
+  body>*:not(#print-root){display:none!important}
+  #print-root{display:block}
+  .pg{width:190mm;height:277mm;page-break-after:always;break-after:page;display:flex;flex-direction:column;overflow:hidden}
+  .pg:last-child{page-break-after:auto;break-after:auto}
+  .ph{height:14mm;border-bottom:2px solid #000;display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:2mm;margin-bottom:3mm}
+  .ph .t{font-size:20pt;font-weight:800;letter-spacing:6pt}
+  .ph .s{font-size:10pt;text-align:right;line-height:1.3}
+  .grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3mm}
+  .cell{border:1px solid #000;display:flex;flex-direction:column;min-height:0}
+  .cell .ph1{flex:1;min-height:0;background:#f2f2f2;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #000;overflow:hidden}
+  .cell .ph1 img{max-width:100%;max-height:100%;object-fit:contain}
+  .cell table{width:100%;border-collapse:collapse;font-size:8.5pt;table-layout:fixed}
+  .cell td{border-top:1px solid #999;padding:1mm 1.5mm;vertical-align:top;word-break:keep-all;overflow-wrap:anywhere}
+  .cell tr:first-child td{border-top:0}
+  .cell td.k{width:17mm;background:#eee;font-weight:700;text-align:center}
+  .pf{height:6mm;font-size:8pt;color:#555;display:flex;justify-content:space-between;padding-top:1.5mm}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>📷 사진대지 <small id="syncLbl" style="font-size:11px;font-weight:400;opacity:.85"></small></h1>
+  <button id="btnSet">설정</button>
+</header>
+
+<div class="bar">
+  <label>촬영<input id="inCam" type="file" accept="image/*" capture="environment"></label>
+  <label class="alt">갤러리/파일에서 추가<input id="inGal" type="file" accept="image/*" multiple></label>
+</div>
+<p class="status" id="status"></p>
+<div id="list"></div>
+
+<div class="fab">
+  <button class="sec" id="btnRetry">재분석</button>
+  <button id="btnPdf">사진대지 PDF 만들기</button>
+</div>
+
+<dialog id="dlgSet">
+  <h3 style="margin:0">설정</h3>
+  <label>회사명 (PDF 머리글)<input id="setCompany" placeholder="예: ○○인테리어"></label>
+  <label>접근 암호 (서버에 설정한 APP_PASSCODE)<input id="setPass" type="password" autocomplete="off"></label>
+  <label>PDF 정렬<select id="setSort">
+    <option value="trade">공종(공정순) → 시간순</option>
+    <option value="time">시간순</option>
+  </select></label>
+  <div class="actions"><button class="g" id="setClose">닫기</button><button id="setSave">저장</button></div>
+</dialog>
+
+<dialog id="dlgPdf">
+  <h3 style="margin:0">PDF 만들기</h3>
+  <label>현장<select id="pdfSite"></select></label>
+  <label>공사명 (비워두면 현장명)<input id="pdfTitle"></label>
+  <label>시작일<input id="pdfFrom" type="date"></label>
+  <label>종료일<input id="pdfTo" type="date"></label>
+  <label><input type="checkbox" id="pdfReviewOnly" style="width:auto"> 확인 필요 사진도 포함</label>
+  <div class="actions"><button class="g" id="pdfCancel">취소</button><button id="pdfGo">PDF 생성</button></div>
+  <p style="font-size:12px;color:var(--sub)">인쇄 창이 열리면 대상 프린터를 "PDF로 저장"으로 선택하세요.</p>
+</dialog>
+
+<div id="print-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
+<script>
+'use strict';
+/* ===== 공종 목록(공정 순서) — api/classify.js 와 동일하게 유지 ===== */
+const TRADES = ['가설·보양','철거','목공','경량·석고보드','천장','전기·조명','설비·배관','방수','타일','미장·조적',
+  '도장-바탕처리','도장-하도(프라이머)','도장-중·상도','도장-특수(에폭시·스프레이·방청)','도배','바닥재','창호·유리',
+  '가구·싱크대','금속·철물','필름·시트','청소·마감','자재반입·현황','기타'];
+const STAGES = ['시공전','시공중','시공후','기타'];
+const SITE_RADIUS_M = 200;      // 같은 현장으로 묶는 반경
+const NOGPS_GAP_MS = 6*3600e3;  // GPS 없는 사진을 직전 사진 현장에 붙이는 시간 간격
+
+/* ===== 저장소 (IndexedDB) ===== */
+let db;
+function openDB(){return new Promise((res,rej)=>{
+  const r=indexedDB.open('photo-ledger',1);
+  r.onupgradeneeded=()=>{const d=r.result;
+    d.createObjectStore('photos',{keyPath:'id'});
+    d.createObjectStore('sites',{keyPath:'id'});};
+  r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error);});}
+const tx=(s,m='readonly')=>db.transaction(s,m).objectStore(s);
+const pr=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const getAll=s=>pr(tx(s).getAll());
+const livePhotos=async()=>(await getAll('photos')).filter(p=>!p.deleted);
+const put=(s,v)=>pr(tx(s,'readwrite').put(v));
+const del=(s,k)=>pr(tx(s,'readwrite').delete(k));
+
+/* ===== 유틸 ===== */
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const fmt=t=>{const d=new Date(t);return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
+const ymd=t=>{const d=new Date(t);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`};
+function dist(a,b){const R=6371000,r=x=>x*Math.PI/180;
+  const dLa=r(b.lat-a.lat),dLo=r(b.lng-a.lng);
+  const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));}
+const cfg={get c(){return localStorage.getItem('company')||''},get p(){return localStorage.getItem('pass')||''},get s(){return localStorage.getItem('sort')||'trade'}};
+let toastT;function status(t){$('status').textContent=t}
+
+/* ===== 이미지 처리 ===== */
+async function resize(file,max,q){
+  const bmp=await createImageBitmap(file,{imageOrientation:'from-image'});
+  const k=Math.min(1,max/Math.max(bmp.width,bmp.height));
+  const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+  c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+  return new Promise(r=>c.toBlob(r,'image/jpeg',q));
+}
+const blobToDataURL=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+function currentPos(){return new Promise(res=>{
+  if(!navigator.geolocation)return res(null);
+  navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lng:p.coords.longitude}),()=>res(null),{enableHighAccuracy:true,timeout:6000,maximumAge:60000});});}
+
+/* ===== 사진 추가 ===== */
+async function addFiles(files,fromCamera){
+  files=[...files];if(!files.length)return;
+  let livePos=null;
+  for(let i=0;i<files.length;i++){
+    const f=files[i];status(`사진 읽는 중… ${i+1}/${files.length}`);
+    let takenAt=null,gps=null,srcTime='exif',srcGps='exif';
+    try{
+      const ex=await exifr.parse(f,{gps:true,pick:['DateTimeOriginal','CreateDate','latitude','longitude']});
+      if(ex){takenAt=(ex.DateTimeOriginal||ex.CreateDate)?.getTime?.()||null;
+        if(typeof ex.latitude==='number'&&typeof ex.longitude==='number')gps={lat:ex.latitude,lng:ex.longitude};}
+    }catch(e){}
+    if(!takenAt){takenAt=f.lastModified||Date.now();srcTime='file';}
+    if(!gps&&fromCamera){ if(!livePos)livePos=await currentPos(); if(livePos){gps=livePos;srcGps='device';} }
+    if(!gps)srcGps='none';
+    const blob=await resize(f,1600,0.82);
+    await put('photos',{id:uid(),blob,url:'',takenAt,srcTime,gps,srcGps,siteId:null,
+      trade:'',stage:'',detail:'',caption:'',space:'',confidence:0,review:'',state:'new',addedAt:Date.now(),dirty:true,uploaded:false});
+  }
+  await assignSites();
+  await render();
+  classifyQueue();
+  syncSoon();
+}
+
+/* ===== 현장 자동 묶기 ===== */
+async function assignSites(){
+  const photos=(await livePhotos()).sort((a,b)=>a.takenAt-b.takenAt);
+  let sites=await getAll('sites');
+  for(const p of photos){
+    if(p.siteId&&sites.find(s=>s.id===p.siteId))continue;
+    let site=null;
+    if(p.gps){
+      site=sites.filter(s=>s.gps).map(s=>({s,d:dist(s.gps,p.gps)})).filter(x=>x.d<=SITE_RADIUS_M).sort((a,b)=>a.d-b.d)[0]?.s;
+      if(!site){site={id:uid(),name:`현장 ${sites.length+1}`,gps:p.gps,dirty:true};sites.push(site);await put('sites',site);}
+    }else{
+      const near=photos.filter(q=>q.siteId&&Math.abs(q.takenAt-p.takenAt)<=NOGPS_GAP_MS)
+        .sort((a,b)=>Math.abs(a.takenAt-p.takenAt)-Math.abs(b.takenAt-p.takenAt))[0];
+      if(near)site=sites.find(s=>s.id===near.siteId);
+      if(!site){site=sites.find(s=>s.id==='unassigned');
+        if(!site){site={id:'unassigned',name:'현장 미지정',gps:null,dirty:true};sites.push(site);await put('sites',site);}}
+    }
+    p.siteId=site.id;p.dirty=true;await put('photos',p);
+  }
+}
+
+/* ===== AI 분류 ===== */
+let running=false;
+async function classifyQueue(){
+  if(running)return;running=true;
+  try{
+    while(true){
+      const todo=(await livePhotos()).filter(p=>p.state==='new'||p.state==='error');
+      const next=todo.find(p=>p.state==='new');
+      if(!next)break;
+      status(`AI 분석 중… (남은 ${todo.filter(p=>p.state==='new').length}장)`);
+      try{
+        const small=await resize(await getBlob(next),1024,0.8);
+        const r=await fetch('/api/classify',{method:'POST',
+          headers:{'content-type':'application/json','x-app-passcode':cfg.p},
+          body:JSON.stringify({image:await blobToDataURL(small),takenAt:fmt(next.takenAt)})});
+        const j=await r.json();
+        if(!r.ok)throw new Error(j.error||r.status);
+        const upd={trade:j.trade,stage:j.stage,detail:j.detail,caption:j.caption,space:j.space,
+          confidence:j.confidence,review:j.review_reason||'',state:'done'};
+        if(upd.confidence<0.6&&!upd.review)upd.review='신뢰도 낮음';
+        await patchPhoto(next.id,c=>{if(c.userEdited)return;Object.assign(c,upd,{dirty:true});});
+      }catch(e){await patchPhoto(next.id,c=>{c.state='error';c.review='분석 실패: '+e.message;});
+        status('오류: '+e.message);
+        if(/암호|401/.test(e.message)){alert('접근 암호가 올바르지 않습니다. 설정에서 입력하세요.');running=false;await render();return;}
+        break;}
+      await render();
+    }
+  }finally{running=false;}
+  syncSoon();
+  const left=(await livePhotos()).filter(p=>p.state==='error').length;
+  status(left?`분석 실패 ${left}장 — "재분석"을 눌러주세요`:'');
+}
+
+/* ===== 화면 ===== */
+const urlCache=new Map();
+function urlOf(p){
+  if(p.blob){if(!urlCache.has(p.id))urlCache.set(p.id,URL.createObjectURL(p.blob));return urlCache.get(p.id);}
+  return p.url||'';
+}
+async function render(){
+  const photos=(await livePhotos()).sort((a,b)=>a.takenAt-b.takenAt);
+  const sites=await getAll('sites');
+  const L=$('list');
+  if(!photos.length){L.innerHTML='<div class="empty">아래 [촬영] 또는 [갤러리/파일에서 추가]로<br>현장 사진을 올리면<br>AI가 공종을 분류하고 현장별로 묶어줍니다.</div>';return;}
+  let h='';
+  for(const s of sites){
+    const ps=photos.filter(p=>p.siteId===s.id);if(!ps.length)continue;
+    h+=`<div class="site"><input data-site="${s.id}" value="${esc(s.name)}"><small>${ps.length}장</small></div>`;
+    for(const t of [...TRADES,'']){
+      const g=ps.filter(p=>(p.trade||'')===t);if(!g.length)continue;
+      h+=`<div class="trade">${t?esc(t):'분석 대기'}</div>`;
+      for(const p of g)h+=card(p);
+    }
+  }
+  L.innerHTML=h;
+}
+function card(p){
+  const needs=p.state==='error'||p.review||(p.state==='done'&&p.confidence<0.6);
+  const gpsTxt=p.gps?`📍${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}${p.srcGps==='device'?' (기기)':''}`:'📍위치없음';
+  return `<div class="card" data-id="${p.id}">
+    <img src="${urlOf(p)}" alt="">
+    <div class="body">
+      <div class="meta">${fmt(p.takenAt)}${p.srcTime==='file'?' (파일시각)':''} · ${gpsTxt}</div>
+      <div class="row">
+        <select data-f="trade">${p.trade?'':'<option value="">분석 대기</option>'}${TRADES.map(t=>`<option ${t===p.trade?'selected':''}>${esc(t)}</option>`).join('')}</select>
+        <select data-f="stage">${p.stage?'':'<option value="">단계</option>'}${STAGES.map(t=>`<option ${t===p.stage?'selected':''}>${t}</option>`).join('')}</select>
+        ${p.state==='done'&&!needs?'<span class="badge ok">AI 분류</span>':''}
+        ${needs?`<span class="badge warn">확인 필요${p.review?': '+esc(p.review):''}</span>`:''}
+      </div>
+      <textarea data-f="caption" placeholder="설명(비고)">${esc(p.caption)}</textarea>
+      <button class="del" data-del="1">삭제</button>
+    </div></div>`;
+}
+
+$('list').addEventListener('change',async e=>{
+  const siteId=e.target.dataset.site;
+  if(siteId){const s=(await getAll('sites')).find(x=>x.id===siteId);s.name=e.target.value.trim()||s.name;s.dirty=true;await put('sites',s);syncSoon();return;}
+  const c=e.target.closest('.card');if(!c)return;
+  const p=(await livePhotos()).find(x=>x.id===c.dataset.id);const f=e.target.dataset.f;if(!f)return;
+  p[f]=e.target.value;
+  if(f!=='caption'){p.review='';p.state='done';if(!p.confidence||p.confidence<1)p.confidence=1; p.userEdited=true;}
+  p.dirty=true;await put('photos',p);await render();syncSoon();
+});
+$('list').addEventListener('click',async e=>{
+  if(!e.target.dataset.del)return;
+  const c=e.target.closest('.card');if(!confirm('이 사진을 삭제할까요?'))return;
+  const p=(await getAll('photos')).find(x=>x.id===c.dataset.id);
+  if(p&&p.uploaded){p.deleted=true;p.dirty=true;await put('photos',p);}else{await del('photos',c.dataset.id);}
+  urlCache.delete(c.dataset.id);await render();syncSoon();
+});
+$('inCam').onchange=e=>{addFiles(e.target.files,true);e.target.value=''};
+$('inGal').onchange=e=>{addFiles(e.target.files,false);e.target.value=''};
+$('btnRetry').onclick=async()=>{
+  for(const p of await livePhotos())if(p.state==='error'||(p.state==='done'&&p.review&&!p.userEdited)){p.state='new';await put('photos',p);}
+  classifyQueue();
+};
+
+/* 설정 */
+$('btnSet').onclick=()=>{$('setCompany').value=cfg.c;$('setPass').value=cfg.p;$('setSort').value=cfg.s;$('dlgSet').showModal()};
+$('setClose').onclick=()=>$('dlgSet').close();
+$('setSave').onclick=()=>{localStorage.setItem('company',$('setCompany').value);localStorage.setItem('pass',$('setPass').value);localStorage.setItem('sort',$('setSort').value);$('dlgSet').close();classifyQueue();syncSoon();};
+
+/* ===== PDF(사진대지) ===== */
+$('btnPdf').onclick=async()=>{
+  const sites=await getAll('sites'),photos=await livePhotos();
+  const used=sites.filter(s=>photos.some(p=>p.siteId===s.id));
+  if(!used.length){alert('사진이 없습니다.');return;}
+  $('pdfSite').innerHTML=used.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  const setRange=()=>{const ps=photos.filter(p=>p.siteId===$('pdfSite').value).map(p=>p.takenAt);
+    $('pdfFrom').value=ymd(Math.min(...ps));$('pdfTo').value=ymd(Math.max(...ps));
+    $('pdfTitle').value=sites.find(s=>s.id===$('pdfSite').value).name;};
+  $('pdfSite').onchange=setRange;setRange();
+  $('pdfReviewOnly').checked=true;
+  $('dlgPdf').showModal();
+};
+$('pdfCancel').onclick=()=>$('dlgPdf').close();
+$('pdfGo').onclick=async()=>{
+  $('dlgPdf').close();
+  const sid=$('pdfSite').value;
+  const from=new Date($('pdfFrom').value+'T00:00:00').getTime(),to=new Date($('pdfTo').value+'T23:59:59').getTime();
+  const inclReview=$('pdfReviewOnly').checked;
+  let ps=(await livePhotos()).filter(p=>p.siteId===sid&&p.takenAt>=from&&p.takenAt<=to&&p.state!=='new');
+  const hold=ps.filter(p=>p.state==='error'||(p.review&&!p.userEdited)).length;
+  if(!inclReview)ps=ps.filter(p=>!(p.state==='error'||(p.review&&!p.userEdited)));
+  if(!ps.length){alert('출력할 사진이 없습니다.');return;}
+  if(inclReview&&hold&&!confirm(`확인이 필요한 사진 ${hold}장이 포함됩니다. 그대로 출력할까요?\n(취소 후 먼저 공종을 확인하는 것을 권장합니다)`))return;
+  const order=t=>{const i=TRADES.indexOf(t);return i<0?999:i};
+  ps.sort(cfg.s==='time'?(a,b)=>a.takenAt-b.takenAt:(a,b)=>order(a.trade)-order(b.trade)||a.takenAt-b.takenAt);
+  const site=(await getAll('sites')).find(s=>s.id===sid);
+  const title=$('pdfTitle').value.trim()||site.name;
+  const range=ymd(from)===ymd(to)?ymd(from):`${ymd(from)} ~ ${ymd(to)}`;
+  const pages=[];for(let i=0;i<ps.length;i+=4)pages.push(ps.slice(i,i+4));
+  const root=$('print-root');
+  root.innerHTML=pages.map((pg,i)=>`<section class="pg">
+    <div class="ph"><div class="t">사 진 대 지</div>
+      <div class="s"><b>${esc(title)}</b><br>${esc(range)}${cfg.c?' · '+esc(cfg.c):''}</div></div>
+    <div class="grid">${pg.map(p=>cell(p,site)).join('')}</div>
+    <div class="pf"><span>${esc(cfg.c)}</span><span>${i+1} / ${pages.length}</span></div></section>`).join('');
+  const imgs=[...root.querySelectorAll('img')];
+  await Promise.all(imgs.map(im=>im.decode().catch(()=>{})));
+  window.print();
+};
+function cell(p,site){
+  const loc=p.gps?`${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}`:'-';
+  const kind=p.trade+(p.detail?` (${p.detail})`:'');
+  return `<div class="cell"><div class="ph1"><img src="${urlOf(p)}"></div><table>
+    <tr><td class="k">공종</td><td>${esc(kind)}${p.stage&&p.stage!=='기타'?' · '+esc(p.stage):''}</td></tr>
+    <tr><td class="k">일시</td><td>${fmt(p.takenAt)}</td></tr>
+    <tr><td class="k">위치</td><td>${esc(site.name)}${p.space?' · '+esc(p.space):''}<br><span style="color:#666">${loc}</span></td></tr>
+    <tr><td class="k">비고</td><td>${esc(p.caption)}</td></tr></table></div>`;
+}
+
+/* ===== 서버 동기화 (Supabase · /api/data) — 오프라인 우선: 로컬에 먼저 저장하고 연결되면 올림 ===== */
+async function getBlob(p){
+  if(p.blob)return p.blob;
+  const r=await fetch(p.url);if(!r.ok)throw new Error('사진을 불러오지 못했습니다');
+  return r.blob();
+}
+async function patchPhoto(id,fn){
+  const cur=await pr(tx('photos').get(id));if(!cur)return null;
+  fn(cur);await put('photos',cur);return cur;
+}
+function setSync(t){const el=$('syncLbl');if(el)el.textContent=t?'· '+t:''}
+async function updateSyncLabel(){
+  const n=(await getAll('photos')).filter(p=>p.dirty).length+(await getAll('sites')).filter(s=>s.dirty).length;
+  setSync(n?`서버 저장 대기 ${n}`:'서버 저장됨');
+}
+async function api(action,body={}){
+  const r=await fetch('/api/data',{method:'POST',headers:{'content-type':'application/json','x-app-passcode':cfg.p},
+    body:JSON.stringify({action,...body})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error||('서버 오류 '+r.status));
+  return j;
+}
+const photoRow=p=>({id:p.id,siteId:p.siteId,takenAt:p.takenAt,srcTime:p.srcTime,gps:p.gps,srcGps:p.srcGps,trade:p.trade,
+  stage:p.stage,detail:p.detail,caption:p.caption,space:p.space,confidence:p.confidence,review:p.review,state:p.state,userEdited:!!p.userEdited});
+
+let syncing=false,syncAgain=false,syncTimer;
+function syncSoon(ms=800){clearTimeout(syncTimer);syncTimer=setTimeout(sync,ms)}
+async function sync(){
+  if(syncing){syncAgain=true;return}
+  if(!navigator.onLine){await updateSyncLabel();return}
+  syncing=true;setSync('동기화 중…');
+  try{
+    do{
+      syncAgain=false;
+      for(const s of await getAll('sites')){
+        if(!s.dirty)continue;
+        const sent={name:s.name,gps:s.gps};
+        await api('save-site',{site:{id:s.id,name:s.name,gps:s.gps}});
+        const cur=await pr(tx('sites').get(s.id));
+        if(cur&&cur.name===sent.name)cur.dirty=false;else syncAgain=true;
+        if(cur)await put('sites',cur);
+      }
+      for(const p of await getAll('photos')){
+        if(!p.dirty)continue;
+        if(p.deleted){
+          if(p.uploaded)await api('delete-photo',{id:p.id});
+          await del('photos',p.id);urlCache.delete(p.id);continue;
+        }
+        if(!p.uploaded){
+          const u=await api('upload-url',{id:p.id});
+          const fd=new FormData();fd.append('cacheControl','3600');fd.append('',p.blob);
+          const r=await fetch(u.signedUrl,{method:'PUT',headers:{'x-upsert':'true'},body:fd});
+          if(!r.ok)throw new Error('사진 업로드 실패 ('+r.status+')');
+          await patchPhoto(p.id,c=>{c.uploaded=true});
+        }
+        const sent=JSON.stringify(photoRow(p));
+        await api('save-photo',{photo:photoRow(p)});
+        const cur=await pr(tx('photos').get(p.id));
+        if(cur){
+          if(JSON.stringify(photoRow(cur))===sent)cur.dirty=false;else syncAgain=true;
+          await put('photos',cur);
+        }
+      }
+      await pull();
+    }while(syncAgain);
+    await updateSyncLabel();
+  }catch(e){
+    setSync('동기화 실패: '+e.message);
+    if(/암호|401/.test(e.message))status('설정에서 접근 암호를 확인하세요.');
+  }finally{syncing=false}
+}
+async function pull(){
+  const j=await api('list');
+  const localP=new Map((await getAll('photos')).map(p=>[p.id,p]));
+  const localS=new Map((await getAll('sites')).map(s=>[s.id,s]));
+  for(const s of j.sites){
+    const l=localS.get(s.id);if(l&&l.dirty)continue;
+    await put('sites',{id:s.id,name:s.name,gps:s.lat!=null?{lat:s.lat,lng:s.lng}:null,dirty:false});
+  }
+  const onServer=new Set();
+  for(const r of j.photos){
+    onServer.add(r.id);
+    const l=localP.get(r.id);if(l&&l.dirty)continue;
+    await put('photos',{id:r.id,siteId:r.site_id,takenAt:Date.parse(r.taken_at),srcTime:r.src_time,
+      gps:r.lat!=null?{lat:r.lat,lng:r.lng}:null,srcGps:r.src_gps,trade:r.trade,stage:r.stage,detail:r.detail,
+      caption:r.caption,space:r.space,confidence:r.confidence,review:r.review,state:r.state,userEdited:r.user_edited,
+      blob:l?.blob||null,url:r.url||'',uploaded:true,dirty:false,addedAt:l?.addedAt||Date.parse(r.created_at)});
+  }
+  for(const [id,l] of localP)if(!onServer.has(id)&&!l.dirty&&l.uploaded){await del('photos',id);urlCache.delete(id);}
+  await render();
+  classifyQueue(); // 다른 기기에서 올라온 미분석 사진 처리
+}
+
+/* ===== 시작 ===== */
+(async()=>{
+  await openDB();await render();
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  classifyQueue();syncSoon(200);
+  window.addEventListener('online',()=>syncSoon(500));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSoon(300)});
+})();
+</script>
+</body>
+</html>
