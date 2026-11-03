@@ -3,47 +3,130 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1f4e79">
+<meta name="theme-color" content="#bb6580">
+<meta name="color-scheme" content="light">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <title>사진대지</title>
 <style>
-:root{--bg:#f4f6f8;--card:#fff;--ink:#1c2733;--sub:#667585;--pri:#1f4e79;--warn:#c0392b;--ok:#1e8449;--line:#dde3ea}
-*{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);padding-bottom:90px}
-header{background:var(--pri);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center}
-header h1{margin:0;font-size:18px}
-header button{background:transparent;border:1px solid #fff6;color:#fff;border-radius:8px;padding:6px 10px;font-size:13px}
-.bar{display:flex;gap:8px;padding:12px}
-.bar label,.bar button{flex:1;text-align:center;padding:14px 8px;border-radius:10px;border:0;font-size:15px;font-weight:700;background:var(--pri);color:#fff}
-.bar label.alt{background:#fff;color:var(--pri);border:2px solid var(--pri)}
-.bar input{display:none}
-.status{margin:0 12px;font-size:13px;color:var(--sub)}
-.site{margin:14px 12px 4px;display:flex;gap:8px;align-items:center}
-.site input{flex:1;font-size:16px;font-weight:700;border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff}
-.site small{color:var(--sub);white-space:nowrap}
-.trade{margin:10px 12px 4px;font-size:13px;font-weight:700;color:var(--pri)}
-.card{background:var(--card);margin:6px 12px;border-radius:12px;padding:10px;display:flex;gap:10px;box-shadow:0 1px 2px #0001}
-.card img{width:96px;height:96px;object-fit:cover;border-radius:8px;flex:none;background:#ddd}
-.card .body{flex:1;min-width:0}
-.card .meta{font-size:12px;color:var(--sub);margin-bottom:4px}
-.card select{font-size:14px;padding:4px;border:1px solid var(--line);border-radius:6px;max-width:100%}
-.card textarea{width:100%;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:5px;margin-top:4px;resize:vertical;min-height:38px;font-family:inherit}
-.row{display:flex;gap:6px;flex-wrap:wrap}
-.badge{display:inline-block;font-size:11px;padding:2px 6px;border-radius:10px;background:#eef2f6;color:var(--sub)}
-.badge.warn{background:#fdecea;color:var(--warn)}
-.badge.ok{background:#e6f4ea;color:var(--ok)}
-.del{background:none;border:0;color:var(--warn);font-size:12px;padding:2px 0}
-.fab{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));display:flex;gap:8px;z-index:6}
-.fab button{flex:1;padding:15px;border-radius:12px;border:0;font-size:16px;font-weight:800;background:var(--ok);color:#fff;box-shadow:0 3px 8px #0003}
-.fab button.sec{background:#fff;color:var(--ink);flex:0 0 30%;border:1px solid var(--line)}
-.empty{text-align:center;color:var(--sub);padding:50px 20px;line-height:1.7}
-dialog{border:0;border-radius:14px;padding:18px;width:min(92vw,420px)}
-dialog label{display:block;font-size:13px;color:var(--sub);margin-top:10px}
-dialog input,dialog select{width:100%;font-size:16px;padding:8px;border:1px solid var(--line);border-radius:8px;margin-top:4px}
-dialog .actions{display:flex;gap:8px;margin-top:16px}
-dialog .actions button{flex:1;padding:11px;border-radius:8px;border:0;font-size:15px;background:var(--pri);color:#fff}
-dialog .actions button.g{background:#e9edf1;color:var(--ink)}
+:root{--bg:#fbf7f4;--card:#fff;--ink:#3b2f33;--sub:#8b7a80;--line:#f0e6e4;
+  --rose:#bb5a74;--rose-d:#a14a63;--rose-l:#fbe9ee;--plum:#6d4a5b;--sage-l:#e6f2ec;--sand-l:#f8efe1;--warn:#d0524f;--warn-l:#fdecea}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:Pretendard,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);
+  padding-bottom:calc(100px + env(safe-area-inset-bottom));touch-action:manipulation;line-height:1.4}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:600px;margin:0 auto;padding:0 14px}
+
+header.top{position:sticky;top:0;z-index:10;color:#fff;padding:calc(10px + env(safe-area-inset-top)) 0 12px;
+  background:linear-gradient(135deg,#dc8aa0,#bb6580 55%,#9d5777);box-shadow:0 8px 20px -10px #9d5777aa}
+header .in{max-width:600px;margin:0 auto;padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:40px;height:40px;border-radius:13px;background:#ffffff30;display:grid;place-items:center;flex:none}
+.brand h1{margin:0;font-size:18px;font-weight:800;letter-spacing:-.3px}
+.brand p{margin:1px 0 0;font-size:11.5px;opacity:.88;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw}
+.top-r{display:flex;align-items:center;gap:8px;flex:none}
+.pill{display:flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:0 12px;min-height:38px;background:#ffffff2b;color:#fff;font-size:12.5px;font-weight:700;max-width:140px}
+.pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill i{width:8px;height:8px;border-radius:50%;background:#fff;flex:none}
+.pill.ok i{background:#aef2c9}.pill.busy i{background:#ffe08a;animation:pulse 1s infinite}.pill.err i{background:#ffb8b2}
+.icon-btn{width:40px;height:40px;border-radius:13px;border:0;background:#ffffff2b;color:#fff;display:grid;place-items:center}
+@keyframes pulse{50%{opacity:.3}}
+
+.actions{display:grid;grid-template-columns:1.15fr 1fr;gap:10px;margin:16px 0 12px}
+.act{position:relative;border-radius:22px;padding:15px 14px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;
+  background:#fff;border:1.5px solid var(--line);box-shadow:0 6px 18px -10px #8b5a6b66;cursor:pointer;user-select:none}
+.act .ic{width:44px;height:44px;border-radius:15px;display:grid;place-items:center;background:var(--rose-l);color:var(--rose-d)}
+.act b{font-size:16.5px;font-weight:800;display:block;letter-spacing:-.3px}
+.act small{font-size:12px;color:var(--sub)}
+.act.primary{background:linear-gradient(145deg,#dc7f96,#b95b78);color:#fff;border:0;box-shadow:0 14px 26px -12px #b95b78}
+.act.primary .ic{background:#ffffff35;color:#fff}.act.primary small{color:#ffffffd0}
+.act input{display:none}
+.act:active{transform:scale(.98)}
+
+.note{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 13px;font-size:13.5px;color:var(--plum);margin:0 0 10px}
+.note[hidden]{display:none}
+.spin{width:16px;height:16px;border-radius:50%;border:2.5px solid var(--rose-l);border-top-color:var(--rose);animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.chips{display:flex;gap:8px;margin:2px 0 4px;overflow-x:auto;scrollbar-width:none}
+.chips[hidden]{display:none}
+.chips button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:0 15px;min-height:40px;font-size:14px;font-weight:700;color:var(--sub)}
+.chips button b{margin-left:5px;color:var(--rose-d)}
+.chips button.on{background:var(--rose-l);border-color:#ecb7c4;color:var(--rose-d)}
+
+.site{margin:22px 0 2px;background:#fff;border-radius:20px;border:1px solid var(--line);padding:12px 12px 12px 14px;display:flex;align-items:center;gap:11px;box-shadow:0 6px 18px -12px #8b5a6b77}
+.site .pin{width:38px;height:38px;border-radius:13px;background:var(--rose-l);color:var(--rose-d);display:grid;place-items:center;flex:none}
+.site .nm{flex:1;min-width:0}
+.site .nm small{display:block;font-size:11.5px;color:var(--sub);font-weight:700}
+.site input{width:100%;border:0;background:transparent;font-size:17px;font-weight:800;padding:3px 0;outline:none;border-bottom:1.5px dashed transparent;letter-spacing:-.3px}
+.site input:focus{border-bottom-color:var(--rose)}
+.site .pdfbtn{border:0;background:var(--rose-l);color:var(--rose-d);font-weight:800;font-size:13.5px;border-radius:13px;padding:0 13px;min-height:42px;display:flex;align-items:center;gap:5px;flex:none}
+
+.trade{display:flex;align-items:center;gap:8px;margin:18px 4px 6px;font-size:14px;font-weight:800;color:var(--tone)}
+.trade i{width:9px;height:9px;border-radius:50%;background:var(--tone)}
+.trade span{font-weight:700;color:var(--sub);font-size:12px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:0 8px}
+.tone-rose{--tone:#bb5a74}.tone-peach{--tone:#d6784f}.tone-sage{--tone:#5c8f78}.tone-sand{--tone:#a8793d}.tone-sky{--tone:#5d82ab}.tone-plum{--tone:#7a5670}
+
+.card{position:relative;background:#fff;border-radius:20px;padding:10px;margin:8px 0;display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px 12px;border:1px solid var(--line);box-shadow:0 6px 18px -12px #8b5a6b77}
+.card.flag{border-color:#f1b9b5}
+.card .th{width:92px;height:92px;border-radius:15px;overflow:hidden;background:#efe6e6;border:0;padding:0}
+.card .th img{width:100%;height:100%;object-fit:cover;display:block}
+.card .body{min-width:0;display:flex;flex-direction:column;gap:7px;justify-content:space-between}
+.meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--sub);min-height:28px;padding-right:34px}
+.meta b{color:var(--ink);font-size:13.5px;font-weight:800}
+.chip{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 8px;border-radius:999px;background:#f6eeee;color:var(--sub);font-weight:700}
+.del{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:11px;border:0;background:transparent;color:#b9a3aa;display:grid;place-items:center}
+.del:active{background:var(--warn-l);color:var(--warn)}
+.sel{display:grid;grid-template-columns:1.6fr 1fr;gap:6px}
+.sel select{appearance:none;-webkit-appearance:none;width:100%;min-height:42px;border:1.5px solid var(--line);border-radius:13px;padding:0 26px 0 11px;font-size:14px;font-weight:700;
+  text-overflow:ellipsis;
+  background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b7a80' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 10px center/12px}
+.sel select[data-stage="시공전"]{background-color:var(--sand-l)}
+.sel select[data-stage="시공중"]{background-color:var(--rose-l)}
+.sel select[data-stage="시공후"]{background-color:var(--sage-l)}
+.why{grid-column:1/-1;display:flex;align-items:flex-start;gap:7px;font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-l);border-radius:12px;padding:8px 10px}
+.why.ok{color:#4f8068;background:var(--sage-l)}
+.why svg{flex:none;margin-top:1px}
+.card textarea{grid-column:1/-1;width:100%;min-height:48px;border:1.5px solid var(--line);border-radius:13px;padding:10px 12px;font-size:15px;line-height:1.45;resize:none;background:#fffdfc}
+.card select:focus,.card textarea:focus,dialog input:focus,dialog select:focus{outline:2.5px solid #ecb7c4;outline-offset:0;border-color:var(--rose)}
+
+.empty{text-align:center;padding:40px 22px;color:var(--sub);line-height:1.7;font-size:14.5px}
+.empty .em-ic{width:88px;height:88px;margin:0 auto 16px;border-radius:30px;background:linear-gradient(145deg,#fbe9ee,#f5dce4);display:grid;place-items:center;color:var(--rose)}
+.empty h2{margin:0 0 6px;font-size:19px;color:var(--ink)}
+.empty p{margin:0}
+
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:12;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,#fbf7f4 72%,#fbf7f400)}
+.dock .in{max-width:572px;margin:0 auto;display:flex;gap:10px}
+.dock button{min-height:56px;border-radius:19px;border:0;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.dock .ghost{flex:0 0 auto;padding:0 18px;background:#fff;border:1.5px solid var(--line);color:var(--plum);box-shadow:0 8px 18px -12px #0005;font-size:14.5px}
+.dock .cta{flex:1;background:linear-gradient(145deg,#dc7f96,#b95b78);color:#fff;box-shadow:0 14px 26px -12px #b95b78}
+.dock button:active{transform:scale(.98)}
+
+dialog{border:0;padding:0;background:#fff;color:var(--ink);width:min(560px,100%);max-width:100%;border-radius:28px 28px 0 0;margin:auto auto 0;box-shadow:0 -20px 50px -20px #0006;overflow:auto}
+dialog::backdrop{background:#2d1b2299;backdrop-filter:blur(3px)}
+dialog .sheet{padding:10px 18px calc(20px + env(safe-area-inset-bottom))}
+dialog .grab{width:44px;height:5px;border-radius:9px;background:#eadcdf;margin:4px auto 14px}
+dialog h3{margin:0 0 4px;font-size:20px;letter-spacing:-.4px}
+dialog label{display:block;font-size:12.5px;font-weight:700;color:var(--sub);margin-top:13px}
+dialog label small{font-weight:500}
+dialog input:not([type=checkbox]),dialog select{display:block;width:100%;min-height:50px;font-size:16px;border:1.5px solid var(--line);border-radius:14px;padding:0 13px;margin-top:6px;background:#fff;color:var(--ink)}
+dialog .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+dialog .two label{min-width:0}
+dialog input[type=date]{min-width:0;-webkit-appearance:none;appearance:none;text-align:left}
+dialog .chk{display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:700;color:var(--ink);margin-top:16px}
+dialog .chk input{width:22px;height:22px;accent-color:#bb5a74;margin:0}
+dialog .actions{display:flex;gap:10px;margin-top:20px}
+dialog .actions button{flex:1;min-height:54px;border-radius:17px;border:0;font-weight:800;font-size:16px;background:linear-gradient(145deg,#dc7f96,#b95b78);color:#fff}
+dialog .actions button.g{background:#f5ecec;color:var(--plum);flex:.6}
+dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
+@media(min-width:640px){dialog{margin:auto;border-radius:28px}}
+#dlgImg{background:transparent;box-shadow:none;border-radius:0;margin:auto;width:100%;max-height:100%;overflow:visible}
+#dlgImg::backdrop{background:#1d1015e6}
+#dlgImg img{display:block;max-width:100%;max-height:78vh;margin:0 auto;border-radius:18px}
+#dlgImg .cap{color:#fff;text-align:center;margin-top:12px;font-size:13.5px;font-weight:600}
 
 /* ---- 인쇄(PDF) ---- */
 #print-root{display:none}
@@ -70,44 +153,56 @@ dialog .actions button.g{background:#e9edf1;color:var(--ink)}
 </style>
 </head>
 <body>
-<header>
-  <h1>📷 사진대지 <small id="syncLbl" style="font-size:11px;font-weight:400;opacity:.85"></small></h1>
-  <button id="btnSet">설정</button>
-</header>
+<header class="top"><div class="in">
+  <div class="brand"><span class="logo" data-ic="camera"></span><div><h1>사진대지</h1><p id="brandSub">현장 사진 자동 정리</p></div></div>
+  <div class="top-r">
+    <button class="pill busy" id="syncPill" type="button" aria-label="동기화 상태"><i></i><span id="syncLbl">확인 중</span></button>
+    <button class="icon-btn" id="btnSet" type="button" aria-label="설정" data-ic="gear"></button>
+  </div>
+</div></header>
 
-<div class="bar">
-  <label>촬영<input id="inCam" type="file" accept="image/*" capture="environment"></label>
-  <label class="alt">갤러리/파일에서 추가<input id="inGal" type="file" accept="image/*" multiple></label>
-</div>
-<p class="status" id="status"></p>
-<div id="list"></div>
+<main class="wrap">
+  <section class="actions">
+    <label class="act primary"><span class="ic" data-ic="camera"></span><span><b>촬영하기</b><small>카메라로 바로 찍기</small></span>
+      <input id="inCam" type="file" accept="image/*" capture="environment"></label>
+    <label class="act"><span class="ic" data-ic="images"></span><span><b>사진 추가</b><small>갤러리·파일에서 여러 장</small></span>
+      <input id="inGal" type="file" accept="image/*" multiple></label>
+  </section>
+  <div class="note" id="note" hidden><i class="spin"></i><span id="status"></span></div>
+  <div class="chips" id="chips" hidden>
+    <button type="button" data-filter="all" class="on">전체<b id="cAll">0</b></button>
+    <button type="button" data-filter="review">확인 필요<b id="cRev">0</b></button>
+  </div>
+  <div id="list"></div>
+</main>
 
-<div class="fab">
-  <button class="sec" id="btnRetry">재분석</button>
-  <button id="btnPdf">사진대지 PDF 만들기</button>
-</div>
+<nav class="dock"><div class="in">
+  <button class="ghost" id="btnRetry" type="button"><span data-ic="refresh"></span>다시 분석</button>
+  <button class="cta" id="btnPdf" type="button"><span data-ic="filePdf"></span>사진대지 PDF 만들기</button>
+</div></nav>
 
-<dialog id="dlgSet">
-  <h3 style="margin:0">설정</h3>
-  <label>회사명 (PDF 머리글)<input id="setCompany" placeholder="예: ○○인테리어"></label>
-  <label>접근 암호 (서버에 설정한 APP_PASSCODE)<input id="setPass" type="password" autocomplete="off"></label>
+<dialog id="dlgSet"><div class="sheet"><div class="grab"></div>
+  <h3>설정</h3>
+  <label>회사명 <small>(PDF 머리글에 표시)</small><input id="setCompany" placeholder="예: ○○인테리어" autocomplete="organization"></label>
+  <label>접근 암호<input id="setPass" type="password" autocomplete="off" placeholder="서버에 정해 둔 암호"></label>
   <label>PDF 정렬<select id="setSort">
     <option value="trade">공종(공정순) → 시간순</option>
     <option value="time">시간순</option>
   </select></label>
-  <div class="actions"><button class="g" id="setClose">닫기</button><button id="setSave">저장</button></div>
-</dialog>
+  <div class="actions"><button class="g" id="setClose" type="button">닫기</button><button id="setSave" type="button">저장</button></div>
+</div></dialog>
 
-<dialog id="dlgPdf">
-  <h3 style="margin:0">PDF 만들기</h3>
+<dialog id="dlgPdf"><div class="sheet"><div class="grab"></div>
+  <h3>사진대지 PDF 만들기</h3>
   <label>현장<select id="pdfSite"></select></label>
-  <label>공사명 (비워두면 현장명)<input id="pdfTitle"></label>
-  <label>시작일<input id="pdfFrom" type="date"></label>
-  <label>종료일<input id="pdfTo" type="date"></label>
-  <label><input type="checkbox" id="pdfReviewOnly" style="width:auto"> 확인 필요 사진도 포함</label>
-  <div class="actions"><button class="g" id="pdfCancel">취소</button><button id="pdfGo">PDF 생성</button></div>
-  <p style="font-size:12px;color:var(--sub)">인쇄 창이 열리면 대상 프린터를 "PDF로 저장"으로 선택하세요.</p>
-</dialog>
+  <label>공사명 <small>(비우면 현장명)</small><input id="pdfTitle"></label>
+  <div class="two"><label>시작일<input id="pdfFrom" type="date"></label><label>종료일<input id="pdfTo" type="date"></label></div>
+  <label class="chk"><input type="checkbox" id="pdfReviewOnly"> 확인 필요 사진도 포함</label>
+  <p class="hint">인쇄 창이 열리면 프린터를 <b>"PDF로 저장"</b>으로 고르세요. 한 장에 4컷씩 정리됩니다.</p>
+  <div class="actions"><button class="g" id="pdfCancel" type="button">취소</button><button id="pdfGo" type="button">PDF 생성</button></div>
+</div></dialog>
+
+<dialog id="dlgImg"><img id="zoomImg" alt=""><div class="cap" id="zoomCap"></div></dialog>
 
 <div id="print-root"></div>
 
@@ -149,7 +244,25 @@ function dist(a,b){const R=6371000,r=x=>x*Math.PI/180;
   const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;
   return 2*R*Math.asin(Math.sqrt(h));}
 const cfg={get c(){return localStorage.getItem('company')||''},get p(){return localStorage.getItem('pass')||''},get s(){return localStorage.getItem('sort')||'trade'}};
-let toastT;function status(t){$('status').textContent=t}
+const _s=(p,w=22)=>`<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const P_CAM='<path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>';
+const P_FILE='<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>';
+const IC={
+  camera:_s(P_CAM,22),
+  images:_s('<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/>',22),
+  gear:_s('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',20),
+  pin:_s('<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',20),
+  pinS:_s('<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',12),
+  file:_s(P_FILE,16),filePdf:_s(P_FILE,20),
+  trash:_s('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',18),
+  refresh:_s('<path d="M20 11a8 8 0 0 0-14.9-3M4 5v4h4M4 13a8 8 0 0 0 14.9 3M20 19v-4h-4"/>',18),
+  alert:_s('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>',15),
+  check:_s('<path d="M5 12.5l4.5 4.5L19 7.5"/>',15)
+};
+function hydrateIcons(){document.querySelectorAll('[data-ic]').forEach(el=>{el.innerHTML=IC[el.dataset.ic]||''})}
+function applyBrand(){$('brandSub').textContent=cfg.c||'현장 사진 자동 정리'}
+function status(t){const box=$('note');$('status').textContent=t||'';box.hidden=!t;
+  box.querySelector('.spin').style.display=/분석 중|읽는 중/.test(t||'')?'':'none';}
 
 /* ===== 이미지 처리 ===== */
 async function resize(file,max,q){
@@ -249,40 +362,72 @@ function urlOf(p){
   if(p.blob){if(!urlCache.has(p.id))urlCache.set(p.id,URL.createObjectURL(p.blob));return urlCache.get(p.id);}
   return p.url||'';
 }
+let filter='all',pendingRender=false;
+const needsReview=p=>p.state==='error'||!!p.review||(p.state==='done'&&p.confidence<0.6);
+function tone(t){
+  if(t.startsWith('도장'))return 'tone-rose';
+  if(['도배','필름·시트','바닥재'].includes(t))return 'tone-peach';
+  if(['방수','타일','미장·조적'].includes(t))return 'tone-sage';
+  if(['철거','가설·보양','청소·마감','자재반입·현황'].includes(t))return 'tone-sand';
+  if(['전기·조명','설비·배관','창호·유리'].includes(t))return 'tone-sky';
+  return 'tone-plum';
+}
+const emptyHTML=`<div class="empty"><div class="em-ic">${_s(P_CAM,40)}</div><h2>아직 사진이 없어요</h2>
+  <p>위의 <b>촬영하기</b> 또는 <b>사진 추가</b>로<br>현장 사진을 올리면 AI가 공종을 나누고<br>현장별로 깔끔하게 정리해 드려요.</p></div>`;
 async function render(){
-  const photos=(await livePhotos()).sort((a,b)=>a.takenAt-b.takenAt);
+  const ae=document.activeElement;
+  if(ae&&ae.closest&&ae.closest('#list')&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)){pendingRender=true;return;} // 입력 중에는 화면을 갈아엎지 않음
+  const all=(await livePhotos()).sort((a,b)=>a.takenAt-b.takenAt);
   const sites=await getAll('sites');
+  const nRev=all.filter(needsReview).length;
+  $('cAll').textContent=all.length;$('cRev').textContent=nRev;$('chips').hidden=!all.length;
+  if(filter==='review'&&!nRev)filter='all';
+  document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('on',b.dataset.filter===filter));
+  const photos=filter==='review'?all.filter(needsReview):all;
   const L=$('list');
-  if(!photos.length){L.innerHTML='<div class="empty">아래 [촬영] 또는 [갤러리/파일에서 추가]로<br>현장 사진을 올리면<br>AI가 공종을 분류하고 현장별로 묶어줍니다.</div>';return;}
+  if(!all.length){L.innerHTML=emptyHTML;return;}
   let h='';
   for(const s of sites){
     const ps=photos.filter(p=>p.siteId===s.id);if(!ps.length)continue;
-    h+=`<div class="site"><input data-site="${s.id}" value="${esc(s.name)}"><small>${ps.length}장</small></div>`;
+    const total=all.filter(p=>p.siteId===s.id).length;
+    h+=`<div class="site"><span class="pin">${IC.pin}</span><div class="nm"><small>현장 · ${total}장</small><input data-site="${s.id}" value="${esc(s.name)}" aria-label="현장명"></div><button class="pdfbtn" type="button" data-pdfsite="${s.id}">${IC.file}PDF</button></div>`;
     for(const t of [...TRADES,'']){
       const g=ps.filter(p=>(p.trade||'')===t);if(!g.length)continue;
-      h+=`<div class="trade">${t?esc(t):'분석 대기'}</div>`;
+      h+=`<div class="trade ${tone(t)}"><i></i>${t?esc(t):'분석 대기'}<span>${g.length}</span></div>`;
       for(const p of g)h+=card(p);
     }
   }
   L.innerHTML=h;
 }
 function card(p){
-  const needs=p.state==='error'||p.review||(p.state==='done'&&p.confidence<0.6);
-  const gpsTxt=p.gps?`📍${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}${p.srcGps==='device'?' (기기)':''}`:'📍위치없음';
-  return `<div class="card" data-id="${p.id}">
-    <img src="${urlOf(p)}" alt="">
+  const needs=needsReview(p);
+  const d=new Date(p.takenAt);
+  const when=`${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const loc=p.gps?`<span class="chip" title="${p.gps.lat.toFixed(5)}, ${p.gps.lng.toFixed(5)}">${IC.pinS}위치${p.srcGps==='device'?'(기기)':''}</span>`:'<span class="chip">위치 없음</span>';
+  const why=needs?`<div class="why">${IC.alert}<span>확인 필요${p.review?' · '+esc(p.review):''}</span></div>`
+    :(p.state==='done'?`<div class="why ok">${IC.check}<span>AI가 분류했어요${p.detail?' · '+esc(p.detail):''}</span></div>`:'');
+  return `<div class="card${needs?' flag':''}" data-id="${p.id}">
+    <button class="th" type="button" data-zoom="1" aria-label="사진 크게 보기"><img src="${urlOf(p)}" alt="" loading="lazy"></button>
     <div class="body">
-      <div class="meta">${fmt(p.takenAt)}${p.srcTime==='file'?' (파일시각)':''} · ${gpsTxt}</div>
-      <div class="row">
-        <select data-f="trade">${p.trade?'':'<option value="">분석 대기</option>'}${TRADES.map(t=>`<option ${t===p.trade?'selected':''}>${esc(t)}</option>`).join('')}</select>
-        <select data-f="stage">${p.stage?'':'<option value="">단계</option>'}${STAGES.map(t=>`<option ${t===p.stage?'selected':''}>${t}</option>`).join('')}</select>
-        ${p.state==='done'&&!needs?'<span class="badge ok">AI 분류</span>':''}
-        ${needs?`<span class="badge warn">확인 필요${p.review?': '+esc(p.review):''}</span>`:''}
+      <div class="meta"><b>${when}</b>${p.srcTime==='file'?'<span class="chip">파일시각</span>':''}${loc}<button class="del" type="button" data-del="1" aria-label="삭제">${IC.trash}</button></div>
+      <div class="sel">
+        <select data-f="trade" aria-label="공종">${p.trade?'':'<option value="">분석 대기</option>'}${TRADES.map(t=>`<option ${t===p.trade?'selected':''}>${esc(t)}</option>`).join('')}</select>
+        <select data-f="stage" data-stage="${esc(p.stage)}" aria-label="시공 단계">${p.stage?'':'<option value="">단계</option>'}${STAGES.map(t=>`<option ${t===p.stage?'selected':''}>${t}</option>`).join('')}</select>
       </div>
-      <textarea data-f="caption" placeholder="설명(비고)">${esc(p.caption)}</textarea>
-      <button class="del" data-del="1">삭제</button>
-    </div></div>`;
+    </div>
+    ${why}
+    <textarea data-f="caption" rows="2" placeholder="설명(비고)을 입력하세요">${esc(p.caption)}</textarea>
+  </div>`;
 }
+function openZoom(id){
+  livePhotos().then(ps=>{const p=ps.find(x=>x.id===id);if(!p)return;
+    $('zoomImg').src=urlOf(p);$('zoomCap').textContent=`${p.trade||'분류 대기'}${p.stage?' · '+p.stage:''} · ${fmt(p.takenAt)}`;
+    $('dlgImg').showModal();});
+}
+$('dlgImg').addEventListener('click',()=>$('dlgImg').close());
+$('chips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;filter=b.dataset.filter;render();});
+$('list').addEventListener('focusout',()=>{if(pendingRender){pendingRender=false;setTimeout(render,80);}});
+$('syncPill').onclick=()=>{if(/실패/.test(lastSync)&&lastSyncFull)alert(lastSyncFull);syncSoon(100);};
 
 $('list').addEventListener('change',async e=>{
   const siteId=e.target.dataset.site;
@@ -294,11 +439,16 @@ $('list').addEventListener('change',async e=>{
   p.dirty=true;await put('photos',p);await render();syncSoon();
 });
 $('list').addEventListener('click',async e=>{
-  if(!e.target.dataset.del)return;
-  const c=e.target.closest('.card');if(!confirm('이 사진을 삭제할까요?'))return;
-  const p=(await getAll('photos')).find(x=>x.id===c.dataset.id);
-  if(p&&p.uploaded){p.deleted=true;p.dirty=true;await put('photos',p);}else{await del('photos',c.dataset.id);}
-  urlCache.delete(c.dataset.id);await render();syncSoon();
+  const pb=e.target.closest('[data-pdfsite]');
+  if(pb){openPdf(pb.dataset.pdfsite);return;}
+  const cd=e.target.closest('.card');if(!cd)return;
+  const id=cd.dataset.id;
+  if(e.target.closest('[data-zoom]')){openZoom(id);return;}
+  if(!e.target.closest('[data-del]'))return;
+  if(!confirm('이 사진을 삭제할까요?'))return;
+  const p=(await getAll('photos')).find(x=>x.id===id);
+  if(p&&p.uploaded){p.deleted=true;p.dirty=true;await put('photos',p);}else{await del('photos',id);}
+  urlCache.delete(id);await render();syncSoon();
 });
 $('inCam').onchange=e=>{addFiles(e.target.files,true);e.target.value=''};
 $('inGal').onchange=e=>{addFiles(e.target.files,false);e.target.value=''};
@@ -310,10 +460,11 @@ $('btnRetry').onclick=async()=>{
 /* 설정 */
 $('btnSet').onclick=()=>{$('setCompany').value=cfg.c;$('setPass').value=cfg.p;$('setSort').value=cfg.s;$('dlgSet').showModal()};
 $('setClose').onclick=()=>$('dlgSet').close();
-$('setSave').onclick=()=>{localStorage.setItem('company',$('setCompany').value);localStorage.setItem('pass',$('setPass').value);localStorage.setItem('sort',$('setSort').value);$('dlgSet').close();classifyQueue();syncSoon();};
+$('setSave').onclick=()=>{localStorage.setItem('company',$('setCompany').value);localStorage.setItem('pass',$('setPass').value);localStorage.setItem('sort',$('setSort').value);$('dlgSet').close();applyBrand();classifyQueue();syncSoon();};
 
 /* ===== PDF(사진대지) ===== */
-$('btnPdf').onclick=async()=>{
+$('btnPdf').onclick=()=>openPdf();
+async function openPdf(pre){
   const sites=await getAll('sites'),photos=await livePhotos();
   const used=sites.filter(s=>photos.some(p=>p.siteId===s.id));
   if(!used.length){alert('사진이 없습니다.');return;}
@@ -321,10 +472,11 @@ $('btnPdf').onclick=async()=>{
   const setRange=()=>{const ps=photos.filter(p=>p.siteId===$('pdfSite').value).map(p=>p.takenAt);
     $('pdfFrom').value=ymd(Math.min(...ps));$('pdfTo').value=ymd(Math.max(...ps));
     $('pdfTitle').value=sites.find(s=>s.id===$('pdfSite').value).name;};
+  if(pre&&used.some(x=>x.id===pre))$('pdfSite').value=pre;
   $('pdfSite').onchange=setRange;setRange();
   $('pdfReviewOnly').checked=true;
   $('dlgPdf').showModal();
-};
+}
 $('pdfCancel').onclick=()=>$('dlgPdf').close();
 $('pdfGo').onclick=async()=>{
   $('dlgPdf').close();
@@ -372,10 +524,12 @@ async function patchPhoto(id,fn){
   const cur=await pr(tx('photos').get(id));if(!cur)return null;
   fn(cur);await put('photos',cur);return cur;
 }
-function setSync(t){const el=$('syncLbl');if(el)el.textContent=t?'· '+t:''}
+let lastSync='',lastSyncFull='';
+function setSync(t){lastSync=t||'';const b=$('syncPill'),el=$('syncLbl');if(!b||!el)return;
+  el.textContent=t||'';b.className='pill '+(/실패/.test(t)?'err':/대기|동기화 중|확인/.test(t)?'busy':'ok');}
 async function updateSyncLabel(){
   const n=(await getAll('photos')).filter(p=>p.dirty).length+(await getAll('sites')).filter(s=>s.dirty).length;
-  setSync(n?`서버 저장 대기 ${n}`:'서버 저장됨');
+  setSync(n?`저장 대기 ${n}`:'저장됨');
 }
 async function api(action,body={}){
   const r=await fetch('/api/data',{method:'POST',headers:{'content-type':'application/json','x-app-passcode':cfg.p},
@@ -392,7 +546,7 @@ function syncSoon(ms=800){clearTimeout(syncTimer);syncTimer=setTimeout(sync,ms)}
 async function sync(){
   if(syncing){syncAgain=true;return}
   if(!navigator.onLine){await updateSyncLabel();return}
-  syncing=true;setSync('동기화 중…');
+  syncing=true;setSync('저장 중…');
   try{
     do{
       syncAgain=false;
@@ -429,7 +583,7 @@ async function sync(){
     }while(syncAgain);
     await updateSyncLabel();
   }catch(e){
-    setSync('동기화 실패: '+e.message);
+    setSync('동기화 실패: '+e.message);lastSyncFull='동기화 실패: '+e.message;
     if(/암호|401/.test(e.message))status('설정에서 접근 암호를 확인하세요.');
   }finally{syncing=false}
 }
@@ -457,6 +611,7 @@ async function pull(){
 
 /* ===== 시작 ===== */
 (async()=>{
+  hydrateIcons();applyBrand();
   await openDB();await render();
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
   classifyQueue();syncSoon(200);
