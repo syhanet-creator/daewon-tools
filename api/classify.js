@@ -56,7 +56,8 @@ const SYSTEM = `당신은 실내건축 시공 현장의 사진증빙(사진대�
 - 보양(비닐, 마스킹테이프, 바닥 포장)은 '가설·보양'. 자재 캔·박스만 있으면 '자재반입·현황'.
 - caption에는 사진에서 실제로 보이는 사실만 쓰고 추측을 덧붙이지 마세요. 증빙 서류에 들어갑니다.
 - 확신이 낮거나 공종이 둘 이상 겹치면 confidence를 낮추고 review_reason에 이유를 쓰세요.
-- 사람 얼굴이 보여도 식별하거나 언급하지 마세요.`;
+- 사람 얼굴이 보여도 식별하거나 언급하지 마세요.
+- 다른 설명 없이 record_photo 도구를 정확히 한 번만 호출하세요.`;
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
@@ -89,7 +90,6 @@ module.exports = async function handler(req, res) {
         max_tokens: 600,
         system: SYSTEM,
         tools: [TOOL],
-        tool_choice: { type: 'tool', name: 'record_photo' },
         messages: [
           {
             role: 'user',
@@ -105,10 +105,19 @@ module.exports = async function handler(req, res) {
     const data = await r.json();
     if (!r.ok) return res.status(502).json({ error: data?.error?.message || 'AI 호출 실패' });
 
-    const block = (data.content || []).find((b) => b.type === 'tool_use');
-    if (!block) return res.status(502).json({ error: 'AI 응답에서 결과를 찾지 못했습니다.' });
-
-    const out = block.input;
+    // 1순위: record_photo 도구 호출. 2순위(안전장치): 본문에 JSON이 온 경우
+    let out = (data.content || []).find((b) => b.type === 'tool_use' && b.name === 'record_photo')?.input;
+    if (!out) {
+      const text = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n');
+      const m2 = /\{[\s\S]*\}/.exec(text);
+      if (m2) { try { out = JSON.parse(m2[0]); } catch (_) { /* 아래에서 오류 처리 */ } }
+    }
+    if (!out || typeof out !== 'object') return res.status(502).json({ error: 'AI 응답에서 결과를 찾지 못했습니다.' });
+    out.detail = String(out.detail ?? '');
+    out.caption = String(out.caption ?? '');
+    out.space = String(out.space ?? '');
+    out.review_reason = String(out.review_reason ?? '');
+    out.confidence = typeof out.confidence === 'number' ? out.confidence : 0.5;
     if (!TRADES.includes(out.trade)) out.trade = '기타';
     if (!STAGES.includes(out.stage)) out.stage = '기타';
     return res.status(200).json(out);
