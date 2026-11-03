@@ -123,6 +123,34 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    // 사진대지 보관함: 출력할 때마다 기록(제목·현장·기간·사진 순서)을 남기고 목록에서 다시 불러와 출력
+    if (action === 'save-ledger') {
+      const x = req.body.ledger || {};
+      if (!ID_RE.test(x.id || '')) return fail(res, 400, 'id 형식 오류');
+      const ids = Array.isArray(x.photoIds) ? x.photoIds.filter((i) => ID_RE.test(i)).slice(0, 2000) : [];
+      const { error } = await s.from('pl_ledgers').upsert({
+        id: x.id, title: str(x.title, 100) || '사진대지', site_id: SITE_ID_RE.test(x.siteId || '') ? x.siteId : null,
+        site_name: str(x.siteName, 100), date_from: str(x.from, 10), date_to: str(x.to, 10), photo_ids: ids, count: ids.length,
+        created_at: x.createdAt && !isNaN(new Date(x.createdAt)) ? new Date(x.createdAt).toISOString() : new Date().toISOString(),
+      });
+      if (error) throw error;
+      return res.status(200).json({ ok: true });
+    }
+
+    if (action === 'list-ledgers') {
+      const { data, error } = await s.from('pl_ledgers').select('*').order('created_at', { ascending: false }).limit(200);
+      if (error) throw error;
+      return res.status(200).json({ ledgers: data });
+    }
+
+    if (action === 'delete-ledger') {
+      const { id } = req.body;
+      if (!ID_RE.test(id || '')) return fail(res, 400, 'id 형식 오류');
+      const { error } = await s.from('pl_ledgers').delete().eq('id', id);
+      if (error) throw error;
+      return res.status(200).json({ ok: true });
+    }
+
     return fail(res, 400, '알 수 없는 action');
   } catch (e) {
     return fail(res, 500, String(e && e.message ? e.message : e));

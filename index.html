@@ -130,6 +130,16 @@ dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
 #dlgImg .cap{color:#fff;text-align:center;margin-top:12px;font-size:13.5px;font-weight:600}
 
 
+
+.led{border:1.5px solid var(--line);border-radius:18px;padding:12px 13px;margin-top:10px;background:#fff}
+.led b{display:block;font-size:15px;color:var(--ink);letter-spacing:-.3px}
+.led small{display:block;color:var(--sub);font-size:12.5px;margin-top:3px;line-height:1.5}
+.led .lr{display:flex;gap:8px;margin-top:10px}
+.led .lr button{flex:1;border:0;border-radius:12px;padding:11px;font-weight:800;font-size:13.5px;background:var(--rose-l);color:var(--rose-d)}
+.led .lr button.x{flex:none;background:#f6f0ee;color:var(--sub);padding:11px 14px}
+.led .miss{color:var(--warn);font-weight:700}
+.ledEmpty{text-align:center;color:var(--sub);font-size:13.5px;padding:26px 0}
+
 /* ---- 잠금 화면 ---- */
 #lock{position:fixed;inset:0;z-index:2000;background:linear-gradient(160deg,#fbf7f4,#f9e8ee);display:grid;place-items:center;padding:24px;overflow:auto}
 #lock[hidden]{display:none}
@@ -196,6 +206,7 @@ dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
   <div class="brand"><span class="logo" data-ic="camera"></span><div><h1>사진대지</h1><p id="brandSub">현장 사진 자동 정리</p></div></div>
   <div class="top-r">
     <button class="pill busy" id="syncPill" type="button" aria-label="동기화 상태"><i></i><span id="syncLbl">확인 중</span></button>
+    <button class="icon-btn" id="btnLed" type="button" aria-label="사진대지 보관함" data-ic="folder"></button>
     <button class="icon-btn" id="btnSet" type="button" aria-label="설정" data-ic="gear"></button>
   </div>
 </div></header>
@@ -236,6 +247,13 @@ dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
   <p class="hint" id="usageInfo"></p>
   <button class="linkbtn" id="usageReset" type="button">사용량 기록 초기화</button>
   <div class="actions"><button class="g" id="setClose" type="button">닫기</button><button id="setSave" type="button">저장</button></div>
+</div></dialog>
+
+<dialog id="dlgLed"><div class="sheet"><div class="grab"></div>
+  <h3>사진대지 보관함</h3>
+  <p class="hint">출력한 사진대지가 기록됩니다. 다시 출력하면 현재 저장된 사진·공종 기준으로 만들어집니다.</p>
+  <div id="ledList"></div>
+  <div class="actions"><button class="g" id="ledClose" type="button">닫기</button></div>
 </div></dialog>
 
 <dialog id="dlgPdf"><div class="sheet"><div class="grab"></div>
@@ -300,6 +318,7 @@ const IC={
   pin:_s('<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',20),
   pinS:_s('<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',12),
   file:_s(P_FILE,16),filePdf:_s(P_FILE,20),
+  folder:_s('<path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',22),
   trash:_s('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',18),
   refresh:_s('<path d="M20 11a8 8 0 0 0-14.9-3M4 5v4h4M4 13a8 8 0 0 0 14.9 3M20 19v-4h-4"/>',18),
   alert:_s('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>',15),
@@ -574,6 +593,12 @@ $('pdfGo').onclick=async()=>{
   const site=(await getAll('sites')).find(s=>s.id===sid);
   const title=$('pdfTitle').value.trim()||site.name;
   const range=ymd(from)===ymd(to)?ymd(from):`${ymd(from)} ~ ${ymd(to)}`;
+  const L={id:uid(),title,range,site,ps,from:ymd(from),to:ymd(to)};
+  saveLedger(L);                // 보관함에 기록(오프라인이면 나중에 올림)
+  await printLedger(L);
+};
+async function printLedger(L){
+  const {title,range,site,ps}=L;
   const pages=[];for(let i=0;i<ps.length;i+=4)pages.push(ps.slice(i,i+4));
   const root=$('print-root');
   const today=ymd(Date.now());
@@ -593,7 +618,7 @@ $('pdfGo').onclick=async()=>{
   const imgs=[...root.querySelectorAll('img')];
   await Promise.all(imgs.map(im=>im.decode().catch(()=>{})));
   window.print();
-};
+}
 function cell(p,site,no){
   const kind=p.trade+(p.detail?` (${String(p.detail).slice(0,16)})`:'');
   const gps=p.gps?`<br><span class="gps">위도 ${p.gps.lat.toFixed(5)} · 경도 ${p.gps.lng.toFixed(5)}</span>`:'';
@@ -604,6 +629,60 @@ function cell(p,site,no){
     <tr><td class="k">위치</td><td>${esc(site.name)}${p.space?' · '+esc(p.space):''}${gps}</td></tr>
     <tr><td class="k">비고</td><td>${esc(p.caption||'')}</td></tr></table></div></div>`;
 }
+
+
+/* ===== 사진대지 보관함 ===== */
+const LED_KEY='plLedgers';
+const ledCache=()=>{try{return JSON.parse(localStorage.getItem(LED_KEY)||'[]')}catch(e){return[]}};
+const ledStore=a=>{try{localStorage.setItem(LED_KEY,JSON.stringify(a.slice(0,200)))}catch(e){}};
+function saveLedger(L){
+  const rec={id:L.id,title:L.title,siteId:L.site.id,siteName:L.site.name,from:L.from,to:L.to,photoIds:L.ps.map(p=>p.id),createdAt:Date.now(),pending:1};
+  ledStore([rec,...ledCache()]);flushLedgers();
+}
+async function flushLedgers(){
+  for(const r of ledCache().filter(x=>x.pending)){
+    try{await api('save-ledger',{ledger:r});ledStore(ledCache().map(x=>x.id===r.id?{...x,pending:0}:x))}catch(e){break}
+  }
+}
+const fromRow=r=>({id:r.id,title:r.title,siteId:r.site_id,siteName:r.site_name,from:r.date_from,to:r.date_to,photoIds:r.photo_ids||[],createdAt:Date.parse(r.created_at)});
+async function openLedgers(){
+  $('dlgLed').showModal();drawLedgers();
+  try{
+    await flushLedgers();
+    const j=await api('list-ledgers');
+    const pend=ledCache().filter(x=>x.pending);
+    ledStore([...pend,...j.ledgers.map(fromRow).filter(x=>!pend.some(p=>p.id===x.id))]);
+    drawLedgers();
+  }catch(e){}
+}
+async function drawLedgers(){
+  const list=ledCache(),live=new Set((await livePhotos()).map(p=>p.id));
+  $('ledList').innerHTML=list.length?list.map(l=>{
+    const have=l.photoIds.filter(i=>live.has(i)).length,miss=l.photoIds.length-have;
+    const rg=l.from===l.to?l.from:`${l.from} ~ ${l.to}`;
+    return `<div class="led" data-id="${l.id}"><b>${esc(l.title)}</b>
+      <small>${esc(rg)} · 사진 ${have}장${miss?` <span class="miss">(삭제된 ${miss}장 제외)</span>`:''}<br>작성 ${fmt(l.createdAt)}${l.pending?' · 저장 대기':''}</small>
+      <div class="lr"><button type="button" data-act="print"${have?'':' disabled'}>다시 출력</button><button type="button" class="x" data-act="del" aria-label="삭제">${IC.trash}</button></div></div>`}).join('')
+    :'<div class="ledEmpty">아직 출력한 사진대지가 없습니다.</div>';
+}
+$('btnLed').onclick=openLedgers;
+$('ledClose').onclick=()=>$('dlgLed').close();
+$('ledList').onclick=async e=>{
+  const b=e.target.closest('button[data-act]');if(!b)return;
+  const id=b.closest('.led').dataset.id,l=ledCache().find(x=>x.id===id);if(!l)return;
+  if(b.dataset.act==='del'){
+    if(!confirm('이 보관 기록을 삭제할까요? (사진 자체는 삭제되지 않습니다)'))return;
+    ledStore(ledCache().filter(x=>x.id!==id));drawLedgers();
+    try{await api('delete-ledger',{id})}catch(err){}
+    return;
+  }
+  const all=await livePhotos(),map=new Map(all.map(p=>[p.id,p]));
+  const ps=l.photoIds.map(i=>map.get(i)).filter(Boolean);
+  if(!ps.length){alert('이 사진대지의 사진이 모두 삭제되었습니다.');return}
+  const site=(await getAll('sites')).find(x=>x.id===l.siteId)||{id:l.siteId,name:l.siteName||l.title};
+  $('dlgLed').close();
+  await printLedger({title:l.title,range:l.from===l.to?l.from:`${l.from} ~ ${l.to}`,site,ps});
+};
 
 /* ===== 서버 동기화 (Supabase · /api/data) — 오프라인 우선: 로컬에 먼저 저장하고 연결되면 올림 ===== */
 async function getBlob(p){
