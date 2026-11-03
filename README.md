@@ -17,9 +17,18 @@
 | `SUPABASE_URL` | `https://helgojjololdjgugwwvr.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API → service_role 키 (서버 전용, 절대 앱 코드에 넣지 말 것) |
 | `APP_PASSCODE` | 앱 접근 암호 (앱 [설정]에 같은 값 입력) |
-| `CLAUDE_MODEL` | 선택. 기본 `claude-sonnet-5-5` |
+| `CLAUDE_MODEL_FAST` | 선택. 1차 분류 모델. 기본 `claude-haiku-5-5` |
+| `CLAUDE_MODEL_STRONG` | 선택. 2차(정밀) 모델. 기본 `claude-sonnet-5-5` |
 
 배포 후 삼성 폰 Chrome에서 접속 → "홈 화면에 추가".
+
+## AI 토큰 절감 구조
+1. **2단계 분류**: 모든 사진을 먼저 Haiku 5.5가 800px로 봅니다(도구 호출 강제 → 추론 토큰 없음). 신뢰도가 낮거나 '기타'로 분류하거나 확인 사유를 단 사진만 Sonnet 5.5가 1024px로 다시 봅니다(추론 최소화: `between_tools` + effort `low`).
+2. **프롬프트 캐시**: 공종 판별 기준(고정 지침)을 캐시하여 반복 호출 시 입력 단가의 일부만 냅니다. 캐시 최소 길이는 두 모델 모두 512토큰입니다.
+3. **초소형 출력**: 응답은 짧은 키(t,s,c,d,n,r)와 한 줄 캡션만 받습니다.
+4. **무료 힌트**: 같은 현장에서 45분 이내 직전 사진의 공종을 힌트로 함께 보냅니다.
+5. **재호출 방지**: [다시 분석]은 실패한 사진만 다시 보냅니다. 이미 정밀 분석까지 거친 사진은 카드에서 직접 고칩니다.
+6. 설정창에서 누적 분석 장수, 정밀 재분석 비율, 입력/출력/캐시 토큰을 확인할 수 있습니다.
 
 ## 사용법
 - [촬영]: 카메라로 바로 촬영. EXIF에 위치가 없으면 촬영 순간 기기 위치 사용.
