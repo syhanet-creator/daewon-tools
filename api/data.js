@@ -3,6 +3,7 @@
 // 환경변수: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, APP_PASSCODE
 
 const { createClient } = require('@supabase/supabase-js');
+const { verify } = require('./_auth');
 
 const BUCKET = 'pl-photos';
 const ID_RE = /^[a-z0-9]{6,24}$/;
@@ -29,8 +30,8 @@ function fail(res, code, msg) {
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return fail(res, 405, 'POST only');
 
-  const pass = process.env.APP_PASSCODE;
-  if (pass && req.headers['x-app-passcode'] !== pass) return fail(res, 401, '암호가 올바르지 않습니다.');
+  const v = await verify(req);
+  if (!v.ok) return fail(res, v.code, v.msg);
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return fail(res, 500, '서버에 SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY가 설정되지 않았습니다.');
   }

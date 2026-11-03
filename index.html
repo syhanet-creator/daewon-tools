@@ -129,6 +129,26 @@ dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
 #dlgImg img{display:block;max-width:100%;max-height:78vh;margin:0 auto;border-radius:18px}
 #dlgImg .cap{color:#fff;text-align:center;margin-top:12px;font-size:13.5px;font-weight:600}
 
+
+/* ---- 잠금 화면 ---- */
+#lock{position:fixed;inset:0;z-index:2000;background:linear-gradient(160deg,#fbf7f4,#f9e8ee);display:grid;place-items:center;padding:24px;overflow:auto}
+#lock[hidden]{display:none}
+.lk{width:min(340px,100%);text-align:center}
+.lk .lk-logo img{height:54px;display:block;margin:0 auto 10px}
+.lk h2{margin:0;font-size:22px;letter-spacing:-.5px;color:var(--plum)}
+.lk p{margin:4px 0 18px;color:var(--sub);font-size:13.5px;line-height:1.5}
+.lk input{width:100%;font-size:16px;padding:14px;border:1.5px solid #ecd9de;border-radius:16px;background:#fff;margin-top:10px;color:var(--ink)}
+.lk input:focus{outline:2.5px solid #ecb7c4;border-color:var(--rose)}
+.lk .lk-err{min-height:20px;margin:10px 0 2px;color:var(--warn);font-size:13px;font-weight:600}
+.lk .lk-btn{width:100%;border:0;border-radius:16px;padding:15px;font-size:16px;font-weight:800;color:#fff;background:linear-gradient(135deg,#c76a84,#a94b66);box-shadow:0 10px 22px -10px #a94b66}
+.lk .lk-alt{display:block;margin:14px auto 0;border:0;background:none;color:var(--rose-d);font-weight:700;font-size:13.5px;padding:8px}
+.pad{position:relative;width:240px;height:240px;margin:6px auto 0;touch-action:none;user-select:none;-webkit-user-select:none}
+.pad .dot{position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;display:grid;place-items:center}
+.pad .dot i{width:16px;height:16px;border-radius:50%;background:#d9c3ca;transition:.12s}
+.pad .dot.on i{background:var(--rose);transform:scale(1.5);box-shadow:0 0 0 8px #bb5a7426}
+.pad svg{position:absolute;inset:0;pointer-events:none}
+.pad.bad .dot.on i{background:var(--warn)}
+
 /* ---- 인쇄(PDF) ---- */
 #print-root{display:none}
 @media print{
@@ -171,6 +191,7 @@ dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
 </style>
 </head>
 <body>
+<div id="lock" hidden></div>
 <header class="top"><div class="in">
   <div class="brand"><span class="logo" data-ic="camera"></span><div><h1>사진대지</h1><p id="brandSub">현장 사진 자동 정리</p></div></div>
   <div class="top-r">
@@ -202,7 +223,12 @@ dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
 <dialog id="dlgSet"><div class="sheet"><div class="grab"></div>
   <h3>설정</h3>
   <label>회사명 <small>(PDF 머리글에 표시)</small><input id="setCompany" placeholder="예: ○○인테리어" autocomplete="organization"></label>
-  <label>접근 암호<input id="setPass" type="password" autocomplete="off" placeholder="서버에 정해 둔 암호"></label>
+  <label>보안</label>
+  <div class="sec"><button class="linkbtn" id="btnPw" type="button">비밀번호 변경</button>
+    <button class="linkbtn" id="btnPat" type="button">이 기기 패턴 등록·변경</button>
+    <button class="linkbtn" id="btnPatDel" type="button">이 기기 패턴 해제</button>
+    <button class="linkbtn" id="btnOut" type="button">로그아웃</button></div>
+  <p class="hint">패턴은 이 기기·브라우저에서만 작동합니다. 다른 기기에서는 비밀번호로 로그인하세요.</p>
   <label>PDF 정렬<select id="setSort">
     <option value="trade">공종(공정순) → 시간순</option>
     <option value="time">시간순</option>
@@ -263,7 +289,7 @@ function dist(a,b){const R=6371000,r=x=>x*Math.PI/180;
   const dLa=r(b.lat-a.lat),dLo=r(b.lng-a.lng);
   const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;
   return 2*R*Math.asin(Math.sqrt(h));}
-const cfg={get c(){return localStorage.getItem('company')||''},get p(){return localStorage.getItem('pass')||''},get s(){return localStorage.getItem('sort')||'trade'}};
+const cfg={get c(){return localStorage.getItem('company')||''},get s(){return localStorage.getItem('sort')||'trade'}};
 const _s=(p,w=22)=>`<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const P_CAM='<path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>';
 const P_FILE='<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>';
@@ -356,10 +382,10 @@ function addUsage(list,tier){
   try{localStorage.setItem(USAGE_KEY,JSON.stringify(u))}catch(e){}
 }
 async function callClassify(blob,tier,prev){
-  const r=await fetch('/api/classify',{method:'POST',headers:{'content-type':'application/json','x-app-passcode':cfg.p},
+  const r=await fetch('/api/classify',{method:'POST',headers:{'content-type':'application/json','x-app-token':TOK},
     body:JSON.stringify({image:await blobToDataURL(blob),tier,prev})});
   const j=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error(j.error||('서버 오류 '+r.status));
+  if(!r.ok){if(r.status===401)forceRelogin();throw new Error(j.error||('서버 오류 '+r.status));}
   return j;
 }
 async function prevTrade(p){ // 같은 현장에서 45분 이내 직전 사진의 공종 = 무료 힌트
@@ -512,10 +538,10 @@ $('btnRetry').onclick=async()=>{
 };
 
 /* 설정 */
-$('btnSet').onclick=()=>{showUsage();$('setCompany').value=cfg.c;$('setPass').value=cfg.p;$('setSort').value=cfg.s;$('dlgSet').showModal()};
+$('btnSet').onclick=()=>{showUsage();$('setCompany').value=cfg.c;$('setSort').value=cfg.s;$('dlgSet').showModal()};
 $('setClose').onclick=()=>$('dlgSet').close();
 $('usageReset').onclick=()=>{if(confirm('누적 사용량 기록을 지울까요?')){localStorage.removeItem(USAGE_KEY);showUsage();}};
-$('setSave').onclick=()=>{localStorage.setItem('company',$('setCompany').value);localStorage.setItem('pass',$('setPass').value);localStorage.setItem('sort',$('setSort').value);$('dlgSet').close();applyBrand();classifyQueue();syncSoon();};
+$('setSave').onclick=()=>{localStorage.setItem('company',$('setCompany').value);localStorage.setItem('sort',$('setSort').value);$('dlgSet').close();applyBrand();classifyQueue();syncSoon();};
 
 /* ===== PDF(사진대지) ===== */
 $('btnPdf').onclick=()=>openPdf();
@@ -597,10 +623,10 @@ async function updateSyncLabel(){
   setSync(n?`저장 대기 ${n}`:'저장됨');
 }
 async function api(action,body={}){
-  const r=await fetch('/api/data',{method:'POST',headers:{'content-type':'application/json','x-app-passcode':cfg.p},
+  const r=await fetch('/api/data',{method:'POST',headers:{'content-type':'application/json','x-app-token':TOK},
     body:JSON.stringify({action,...body})});
   const j=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error(j.error||('서버 오류 '+r.status));
+  if(!r.ok){if(r.status===401)forceRelogin();throw new Error(j.error||('서버 오류 '+r.status));}
   return j;
 }
 const photoRow=p=>({id:p.id,siteId:p.siteId,takenAt:p.takenAt,srcTime:p.srcTime,gps:p.gps,srcGps:p.srcGps,trade:p.trade,
@@ -674,9 +700,142 @@ async function pull(){
   classifyQueue(); // 다른 기기에서 올라온 미분석 사진 처리
 }
 
+/* ===== 잠금: 비밀번호 로그인 + 이 기기 전용 패턴 ===== */
+let TOK='';
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const b2a=b=>btoa(String.fromCharCode(...new Uint8Array(b))),a2b=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
+async function patKey(pat,salt){
+  const m=await crypto.subtle.importKey('raw',new TextEncoder().encode('pl|'+pat),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:200000,hash:'SHA-256'},m,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+// 패턴으로 로그인 토큰을 암호화해 이 기기에만 보관 → 패턴만으로는 다른 기기·서버 로그인이 불가능
+async function patSeal(pat,tok){
+  const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},await patKey(pat,salt),new TextEncoder().encode(tok));
+  LS.set('plPat',JSON.stringify({s:b2a(salt),i:b2a(iv),c:b2a(ct),f:0}));LS.del('plTok');
+}
+async function patOpen(pat){
+  const o=JSON.parse(LS.get('plPat'));
+  return new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:a2b(o.i)},await patKey(pat,a2b(o.s)),a2b(o.c)));
+}
+const lockEl=$('lock');
+const lockShow=h=>{lockEl.innerHTML=`<div class="lk">${h}</div>`;lockEl.hidden=false};
+const lockHide=()=>{lockEl.hidden=true;lockEl.innerHTML=''};
+const lkHead=(t,sub)=>`<div class="lk-logo"><img src="logo.png" alt=""></div><h2>${t}</h2><p>${sub||''}</p>`;
+function forceRelogin(){LS.del('plTok');LS.del('plPat');TOK='';location.reload()}
+async function authCall(action,body,tok){
+  const r=await fetch('/api/auth',{method:'POST',headers:{'content-type':'application/json','x-app-token':tok||''},body:JSON.stringify({action,...body})}).catch(()=>null);
+  if(!r)return{ok:false,error:'인터넷 연결이 필요합니다.'};
+  const j=await r.json().catch(()=>({}));return{ok:r.ok,...j};
+}
+function pwForm(title,sub,fields,btn,alt,submit){ // submit(values) → 오류문구|null. 성공하면 true, alt 누르면 null
+  return new Promise(res=>{
+    lockShow(lkHead(title,sub)+fields.map(f=>`<input id="${f[0]}" type="password" placeholder="${f[1]}" autocomplete="${f[2]||'off'}">`).join('')
+      +`<div class="lk-err" id="lkErr"></div><button class="lk-btn" id="lkGo" type="button">${btn}</button>`+(alt?`<button class="lk-alt" id="lkAlt" type="button">${alt}</button>`:''));
+    let busy=false;
+    const go=async()=>{if(busy)return;busy=true;$('lkGo').disabled=true;lkErr('');
+      const e=await submit(fields.map(f=>$(f[0]).value));
+      if(!e){res(true);return}
+      lkErr(e);busy=false;$('lkGo').disabled=false};
+    $('lkGo').onclick=go;fields.forEach((f,i)=>$(f[0]).onkeydown=e=>{if(e.key==='Enter'){i<fields.length-1?$(fields[i+1][0]).focus():go()}});
+    if($('lkAlt'))$('lkAlt').onclick=()=>res(null);
+    $(fields[0][0]).focus();
+  });
+}
+const lkErr=m=>{const e=$('lkErr');if(e)e.textContent=m||''};
+
+// 3x3 패턴판: Promise<string(점 번호 나열)>
+function drawPattern(title,sub,alt,err){
+  return new Promise(res=>{
+    lockShow(lkHead(title,sub)+`<div class="pad" id="pad"><svg viewBox="0 0 240 240"><polyline id="padLn" fill="none" stroke="#bb5a74" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/></svg>`
+      +[...Array(9)].map((_,i)=>`<div class="dot" data-i="${i}" style="left:${(i%3)*100+20}px;top:${Math.floor(i/3)*100+20}px"><i></i></div>`).join('')
+      +`</div><div class="lk-err" id="lkErr">${err||''}</div>`+(alt?`<button class="lk-alt" id="lkAlt" type="button">${alt}</button>`:''));
+    const pad=$('pad'),ln=$('padLn'),dots=[...pad.querySelectorAll('.dot')];
+    let seq=[],pts=[],on=false;
+    const C=i=>[(i%3)*100+20,Math.floor(i/3)*100+20];
+    const upd=(cur)=>{ln.setAttribute('points',pts.concat(cur?[cur]:[]).map(q=>q.join(',')).join(' '))};
+    const pos=e=>{const r=pad.getBoundingClientRect(),k=240/r.width;return[(e.clientX-r.left)*k,(e.clientY-r.top)*k]};
+    const hit=([x,y])=>{for(let i=0;i<9;i++){const [cx,cy]=C(i);if(Math.hypot(x-cx,y-cy)<34&&!seq.includes(i)){seq.push(i);pts.push([cx,cy]);dots[i].classList.add('on')}}};
+    pad.onpointerdown=e=>{on=true;pad.setPointerCapture(e.pointerId);seq=[];pts=[];dots.forEach(d=>d.classList.remove('on'));pad.classList.remove('bad');lkErr('');hit(pos(e));upd(pos(e))};
+    pad.onpointermove=e=>{if(!on)return;const q=pos(e);hit(q);upd(q)};
+    pad.onpointerup=()=>{if(!on)return;on=false;upd();
+      if(seq.length<4){pad.classList.add('bad');lkErr('점을 4개 이상 연결하세요.');setTimeout(()=>{seq=[];pts=[];upd();dots.forEach(d=>d.classList.remove('on'));pad.classList.remove('bad')},600);return}
+      res(seq.join(''))};
+    if($('lkAlt'))$('lkAlt').onclick=()=>res(null);
+  });
+}
+async function patSetup(optional){ // 등록: 두 번 그려 확인
+  for(;;){
+    const a=await drawPattern('이 기기 패턴 등록','이 휴대폰에서만 쓰는 잠금 패턴입니다.<br>다른 기기에서는 비밀번호로 로그인합니다.',optional?'나중에 하기':'취소');
+    if(a===null)return false;
+    const b=await drawPattern('한 번 더 그려주세요','같은 패턴으로 확인합니다.','처음부터 다시');
+    if(b===null)continue;
+    if(a===b){await patSeal(a,TOK);return true}
+    await new Promise(r=>{lockShow(lkHead('패턴이 달라요','처음부터 다시 등록합니다.')+'<button class="lk-btn" id="lkGo" type="button">다시 그리기</button>');$('lkGo').onclick=r});
+  }
+}
+async function patLogin(){ // 토큰 반환, 비밀번호 로그인으로 바꾸려면 null
+  let msg='';
+  for(;;){
+    const o=JSON.parse(LS.get('plPat')||'{}');
+    const pat=await drawPattern(esc(BRAND.name),'패턴을 그려 잠금을 해제하세요','비밀번호로 로그인',msg);
+    if(pat===null)return null;
+    try{const t=await patOpen(pat);o.f=0;LS.set('plPat',JSON.stringify(o));return t}
+    catch(e){
+      o.f=(o.f||0)+1;
+      if(o.f>=5){LS.del('plPat');return null}   // 5회 틀리면 이 기기의 패턴 삭제 → 비밀번호 필요
+      LS.set('plPat',JSON.stringify(o));msg=`패턴이 틀렸습니다. (${o.f}/5)`;
+    }
+  }
+}
+async function newPassword(current){ // 새 비밀번호 설정 → 성공 시 TOK 갱신 (true), 취소 null
+  const f=current?[['lkCur','현재 비밀번호','current-password'],['lkN1','새 비밀번호 (8자 이상)','new-password'],['lkN2','새 비밀번호 확인','new-password']]
+                 :[['lkN1','새 비밀번호 (8자 이상)','new-password'],['lkN2','새 비밀번호 확인','new-password']];
+  return pwForm(current?'비밀번호 변경':'비밀번호를 설정하세요',current?'':'임시 비밀번호는 최초 1회만 사용합니다.<br>본인만 아는 비밀번호로 바꿔 주세요.',f,'저장',current?'취소':null,async v=>{
+    const [cur,n1,n2]=current?v:[null,...v];
+    if(n1.length<8)return '8자 이상 입력하세요.';
+    if(n1!==n2)return '새 비밀번호 확인이 일치하지 않습니다.';
+    const r=await authCall('change',{password:cur,newPassword:n1},TOK);
+    if(!r.ok)return r.error||'변경에 실패했습니다.';
+    TOK=r.token;LS.del('plPat');LS.set('plTok',TOK);return null;
+  });
+}
+async function passwordLogin(){
+  for(;;){
+    let mustChange=false;
+    const ok=await pwForm(esc(BRAND.name),'사진대지 · 비밀번호로 로그인<br><small>(처음에는 전달받은 임시 비밀번호)</small>',[['lkPw','비밀번호','current-password']],'로그인',null,async v=>{
+      const r=await authCall('login',{password:v[0]});
+      if(!r.ok)return r.error||'로그인에 실패했습니다.';
+      TOK=r.token;mustChange=!!r.mustChange;LS.del('plPat');LS.set('plTok',TOK);return null;
+    });
+    if(!ok)continue;
+    if(mustChange){await newPassword(null)}
+    if(!LS.get('plPat'))await patSetup(true);   // 이 기기 패턴 등록 권유 (나중에 하기 가능)
+    return;
+  }
+}
+async function gate(){ // 앱 시작 전 잠금 해제. 오프라인이어도 패턴은 동작.
+  if(LS.get('plPat')){const t=await patLogin();if(t){TOK=t;lockHide();return}}
+  else if(LS.get('plTok')){TOK=LS.get('plTok');lockHide();return}
+  await passwordLogin();lockHide();
+}
+// 설정 화면 버튼
+const lockFlow=async fn=>{$('dlgSet').close();try{await fn()}finally{lockHide()}};
+$('btnPw').onclick=()=>lockFlow(async()=>{if(await newPassword(TOK&&true))await patSetup(true)});
+$('btnPat').onclick=()=>lockFlow(()=>patSetup(false));
+$('btnPatDel').onclick=()=>{LS.del('plPat');LS.set('plTok',TOK);alert('이 기기의 패턴을 해제했습니다.')};
+$('btnOut').onclick=()=>{if(confirm('로그아웃할까요? 다시 들어오려면 비밀번호가 필요합니다.'))forceRelogin()};
+// 오래 백그라운드에 있다 돌아오면(패턴 사용 기기) 다시 잠금
+let hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){hiddenAt=Date.now()}
+  else if(hiddenAt&&Date.now()-hiddenAt>5*60e3&&LS.get('plPat'))location.reload();
+});
+
 /* ===== 시작 ===== */
 (async()=>{
   hydrateIcons();applyBrand();
+  await gate();
   await openDB();await render();
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
   classifyQueue();syncSoon(200);

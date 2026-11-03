@@ -4,6 +4,8 @@
 // 공통: 고정 지침(system+tools)은 프롬프트 캐시, 출력은 짧은 키(t,s,c,d,n,r)로 압축
 // 환경변수: ANTHROPIC_API_KEY(필수), APP_PASSCODE(권장), CLAUDE_MODEL_FAST, CLAUDE_MODEL_STRONG
 
+const { verify } = require('./_auth');
+
 const TRADES = [
   '가설·보양', '철거', '목공', '경량·석고보드', '천장', '전기·조명', '설비·배관', '방수', '타일', '미장·조적',
   '도장-바탕처리', '도장-하도(프라이머)', '도장-중·상도', '도장-특수(에폭시·스프레이·방청)', '도배', '바닥재',
@@ -121,8 +123,8 @@ function extract(data) {
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
-  const pass = process.env.APP_PASSCODE;
-  if (pass && req.headers['x-app-passcode'] !== pass) return res.status(401).json({ error: '암호가 올바르지 않습니다.' });
+  const v = await verify(req);   // 로그인하지 않은 호출은 AI 비용이 발생하기 전에 차단
+  if (!v.ok) return res.status(v.code).json({ error: v.msg });
   if (!process.env.ANTHROPIC_API_KEY) return res.status(500).json({ error: '서버에 ANTHROPIC_API_KEY가 설정되지 않았습니다.' });
 
   try {

@@ -16,7 +16,8 @@
 | `ANTHROPIC_API_KEY` | Anthropic API 키 |
 | `SUPABASE_URL` | `https://helgojjololdjgugwwvr.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API → service_role 키 (서버 전용, 절대 앱 코드에 넣지 말 것) |
-| `APP_PASSCODE` | 앱 접근 암호 (앱 [설정]에 같은 값 입력) |
+| `APP_PASSCODE` | **임시 비밀번호**(최초 1회용). 로그인 후 본인 비밀번호로 바꾸면 더 이상 쓰이지 않음 |
+| `AUTH_SECRET` | 선택. 로그인 토큰 서명키(미설정 시 SUPABASE_SERVICE_ROLE_KEY에서 파생) |
 | `CLAUDE_MODEL_FAST` | 선택. 1차 분류 모델. 기본 `claude-haiku-5-5` |
 | `CLAUDE_MODEL_STRONG` | 선택. 2차(정밀) 모델. 기본 `claude-sonnet-5-5` |
 
@@ -42,3 +43,10 @@
 - 안드로이드 Chrome 사진 선택기는 GPS를 지우는 경우가 있어, 위치가 중요하면 [촬영]을 쓰세요.
 - 증빙 서류이므로 AI 분류는 초안입니다. 출력 전에 "확인 필요"를 점검하세요.
 - 목록은 한 번에 전체를 불러옵니다. 사진이 수천 장 쌓이면 현장·기간별 조회로 바꿔야 합니다.
+
+## 로그인·보안 (AI 토큰 무단 사용 방지)
+1. 처음 접속: 임시 비밀번호(`APP_PASSCODE`) 입력 → 즉시 본인 비밀번호(8자 이상)로 변경.
+2. 변경 후 이 기기 패턴 등록(선택). 패턴은 로그인 토큰을 암호화해 **이 기기 브라우저에만** 보관하므로 다른 기기에서는 쓸 수 없고, 5회 틀리면 패턴이 삭제됩니다.
+3. 서버(`/api/data`, `/api/classify`)는 로그인 토큰이 없으면 AI 호출 전에 거부합니다. 비밀번호 변경 시 다른 기기의 기존 로그인은 모두 해제됩니다.
+4. 비밀번호 5회 오입력 시 10분 잠금. 비밀번호는 scrypt 해시로 Supabase `pl_auth`에 저장(서버 전용).
+5. 비밀번호를 잊으면 Supabase에서 `pl_auth` 행을 삭제하면 임시 비밀번호 상태로 초기화됩니다.
