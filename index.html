@@ -13,7 +13,8 @@
 :root{--bg:#fbf7f4;--card:#fff;--ink:#3b2f33;--sub:#8b7a80;--line:#f0e6e4;
   --rose:#bb5a74;--rose-d:#a14a63;--rose-l:#fbe9ee;--plum:#6d4a5b;--sage-l:#e6f2ec;--sand-l:#f8efe1;--warn:#d0524f;--warn-l:#fdecea}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+body{overscroll-behavior-y:none}
 body{margin:0;font-family:Pretendard,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;background:var(--bg);color:var(--ink);
   padding-bottom:calc(100px + env(safe-area-inset-bottom));touch-action:manipulation;line-height:1.4}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -99,10 +100,10 @@ header .in{max-width:600px;margin:0 auto;padding:0 14px;display:flex;align-items
 .empty p{margin:0}
 
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:12;padding:12px 14px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(to top,#fbf7f4 72%,#fbf7f400)}
-.dock .in{max-width:572px;margin:0 auto;display:flex;gap:10px}
-.dock button{min-height:56px;border-radius:19px;border:0;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
-.dock .ghost{flex:0 0 auto;padding:0 18px;background:#fff;border:1.5px solid var(--line);color:var(--plum);box-shadow:0 8px 18px -12px #0005;font-size:14.5px}
-.dock .cta{flex:1;background:linear-gradient(145deg,#dc7f96,#b95b78);color:#fff;box-shadow:0 14px 26px -12px #b95b78}
+.dock .in{max-width:572px;margin:0 auto;display:flex;gap:7px}
+.dock button{white-space:nowrap;min-height:56px;border-radius:19px;border:0;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.dock .ghost{flex:0 0 auto;padding:0 10px;gap:4px;background:#fff;border:1.5px solid var(--line);color:var(--plum);box-shadow:0 8px 18px -12px #0005;font-size:13.5px}
+.dock .cta{flex:1;min-width:0;background:linear-gradient(145deg,#dc7f96,#b95b78);color:#fff;box-shadow:0 14px 26px -12px #b95b78}
 .dock button:active{transform:scale(.98)}
 .linkbtn{border:0;background:none;color:var(--rose-d);font-weight:700;font-size:13px;padding:8px 0;margin-top:2px}
 
@@ -227,8 +228,9 @@ dialog .hint{font-size:12.5px;color:var(--sub);margin:12px 0 0;line-height:1.55}
 </main>
 
 <nav class="dock"><div class="in">
+  <button class="ghost" id="btnSaveNow" type="button"><span data-ic="save"></span>지금 저장</button>
   <button class="ghost" id="btnRetry" type="button"><span data-ic="refresh"></span>다시 분석</button>
-  <button class="cta" id="btnPdf" type="button"><span data-ic="filePdf"></span>사진대지 PDF 만들기</button>
+  <button class="cta" id="btnPdf" type="button"><span data-ic="filePdf"></span>PDF 만들기</button>
 </div></nav>
 
 <dialog id="dlgSet"><div class="sheet"><div class="grab"></div>
@@ -319,6 +321,7 @@ const IC={
   pinS:_s('<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',12),
   file:_s(P_FILE,16),filePdf:_s(P_FILE,20),
   folder:_s('<path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',22),
+  save:_s('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>',18),
   trash:_s('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',18),
   refresh:_s('<path d="M20 11a8 8 0 0 0-14.9-3M4 5v4h4M4 13a8 8 0 0 0 14.9 3M20 19v-4h-4"/>',18),
   alert:_s('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/>',15),
@@ -475,7 +478,7 @@ const emptyHTML=`<div class="empty"><div class="em-ic">${_s(P_CAM,40)}</div><h2>
   <p>위의 <b>촬영하기</b> 또는 <b>사진 추가</b>로<br>현장 사진을 올리면 AI가 공종을 나누고<br>현장별로 깔끔하게 정리해 드려요.</p></div>`;
 async function render(){
   const ae=document.activeElement;
-  if(ae&&ae.closest&&ae.closest('#list')&&/^(INPUT|TEXTAREA)$/.test(ae.tagName)){pendingRender=true;return;} // 입력 중에는 화면을 갈아엎지 않음
+  if(ae&&ae.closest&&ae.closest('#list')&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){pendingRender=true;return;} // 입력 중에는 화면을 갈아엎지 않음
   const all=(await livePhotos()).sort((a,b)=>a.takenAt-b.takenAt);
   const sites=await getAll('sites');
   const nRev=all.filter(needsReview).length;
@@ -484,7 +487,7 @@ async function render(){
   document.querySelectorAll('#chips button').forEach(b=>b.classList.toggle('on',b.dataset.filter===filter));
   const photos=filter==='review'?all.filter(needsReview):all;
   const L=$('list');
-  if(!all.length){L.innerHTML=emptyHTML;return;}
+  if(!all.length){lastHTML='';L.innerHTML=emptyHTML;return;}
   let h='';
   for(const s of sites){
     const ps=photos.filter(p=>p.siteId===s.id);if(!ps.length)continue;
@@ -496,8 +499,10 @@ async function render(){
       for(const p of g)h+=card(p);
     }
   }
-  L.innerHTML=h;
+  if(h===lastHTML&&L.innerHTML)return;
+  lastHTML=h;const y=window.scrollY;L.innerHTML=h;window.scrollTo(0,y);
 }
+let lastHTML='';
 function card(p){
   const needs=needsReview(p);
   const d=new Date(p.takenAt);
@@ -526,7 +531,8 @@ function openZoom(id){
 $('dlgImg').addEventListener('click',()=>$('dlgImg').close());
 $('chips').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;filter=b.dataset.filter;render();});
 $('list').addEventListener('focusout',()=>{if(pendingRender){pendingRender=false;setTimeout(render,80);}});
-$('syncPill').onclick=()=>{if(/실패/.test(lastSync)&&lastSyncFull)alert(lastSyncFull);syncSoon(100);};
+$('syncPill').onclick=()=>{if(/실패/.test(lastSync)&&lastSyncFull)alert(lastSyncFull);};
+$('btnSaveNow').onclick=()=>sync();
 
 $('list').addEventListener('change',async e=>{
   const siteId=e.target.dataset.site;
@@ -712,11 +718,15 @@ const photoRow=p=>({id:p.id,siteId:p.siteId,takenAt:p.takenAt,srcTime:p.srcTime,
   stage:p.stage,detail:p.detail,caption:p.caption,space:p.space,confidence:p.confidence,review:p.review,state:p.state,userEdited:!!p.userEdited});
 
 let syncing=false,syncAgain=false,syncTimer;
-function syncSoon(ms=800){clearTimeout(syncTimer);syncTimer=setTimeout(sync,ms)}
+// 서버 저장은 5분에 한 번(자동) 또는 [지금 저장] 버튼. 그 사이 변경은 폰에 먼저 저장되고 '저장 대기'로만 표시된다.
+const SYNC_EVERY=5*60e3;let lastSyncAt=0;
+function syncSoon(){updateSyncLabel()}
+function autoSync(){if(!document.hidden&&navigator.onLine&&!syncing&&Date.now()-lastSyncAt>=SYNC_EVERY)sync()}
 async function sync(){
   if(syncing){syncAgain=true;return}
   if(!navigator.onLine){await updateSyncLabel();return}
-  syncing=true;setSync('저장 중…');
+  syncing=true;lastSyncAt=Date.now();setSync('저장 중…');
+  const sb=$('btnSaveNow');if(sb){sb.disabled=true}
   try{
     do{
       syncAgain=false;
@@ -755,27 +765,36 @@ async function sync(){
   }catch(e){
     setSync('동기화 실패: '+e.message);lastSyncFull='동기화 실패: '+e.message;
     if(/암호|401/.test(e.message))status('설정에서 접근 암호를 확인하세요.');
-  }finally{syncing=false}
+  }finally{syncing=false;lastSyncAt=Date.now();const sb=$('btnSaveNow');if(sb)sb.disabled=false}
 }
+let firstPull=true;
 async function pull(){
   const j=await api('list');
   const localP=new Map((await getAll('photos')).map(p=>[p.id,p]));
   const localS=new Map((await getAll('sites')).map(s=>[s.id,s]));
   for(const s of j.sites){
     const l=localS.get(s.id);if(l&&l.dirty)continue;
+    if(l&&l.name===s.name&&JSON.stringify(l.gps||null)===JSON.stringify(s.lat!=null?{lat:s.lat,lng:s.lng}:null))continue;
+    changed=true;
     await put('sites',{id:s.id,name:s.name,gps:s.lat!=null?{lat:s.lat,lng:s.lng}:null,dirty:false});
   }
+  let changed=false;
+  const same=(l,r)=>l.siteId===r.site_id&&l.takenAt===Date.parse(r.taken_at)&&l.trade===r.trade&&l.stage===r.stage&&l.detail===r.detail&&
+    l.caption===r.caption&&l.space===r.space&&l.state===r.state&&!!l.userEdited===!!r.user_edited&&l.review===r.review&&
+    JSON.stringify(l.gps||null)===JSON.stringify(r.lat!=null?{lat:r.lat,lng:r.lng}:null);
   const onServer=new Set();
   for(const r of j.photos){
     onServer.add(r.id);
     const l=localP.get(r.id);if(l&&l.dirty)continue;
+    if(l&&l.uploaded&&(l.url||l.blob)&&same(l,r))continue;   // 서버와 동일하면 그대로 둠
+    changed=true;
     await put('photos',{id:r.id,siteId:r.site_id,takenAt:Date.parse(r.taken_at),srcTime:r.src_time,
       gps:r.lat!=null?{lat:r.lat,lng:r.lng}:null,srcGps:r.src_gps,trade:r.trade,stage:r.stage,detail:r.detail,
       caption:r.caption,space:r.space,confidence:r.confidence,review:r.review,state:r.state,userEdited:r.user_edited,
       blob:l?.blob||null,url:r.url||'',uploaded:true,dirty:false,addedAt:l?.addedAt||Date.parse(r.created_at)});
   }
-  for(const [id,l] of localP)if(!onServer.has(id)&&!l.dirty&&l.uploaded){await del('photos',id);urlCache.delete(id);}
-  await render();
+  for(const [id,l] of localP)if(!onServer.has(id)&&!l.dirty&&l.uploaded){await del('photos',id);urlCache.delete(id);changed=true;}
+  if(changed||firstPull){firstPull=false;await render();}
   classifyQueue(); // 다른 기기에서 올라온 미분석 사진 처리
 }
 
@@ -911,15 +930,26 @@ document.addEventListener('visibilitychange',()=>{
   else if(hiddenAt&&Date.now()-hiddenAt>5*60e3&&LS.get('plPat'))location.reload();
 });
 
+
+// 당겨서 새로고침 차단(overscroll-behavior를 지원하지 않는 브라우저용 보조)
+(()=>{let y0=0;
+  const scrolled=el=>{for(;el&&el!==document;el=el.parentNode){if(el.scrollTop>0)return true}return (document.scrollingElement||document.documentElement).scrollTop>0};
+  document.addEventListener('touchstart',e=>{y0=e.touches[0].clientY},{passive:true});
+  document.addEventListener('touchmove',e=>{
+    if(e.touches.length!==1)return;
+    if(e.touches[0].clientY>y0&&!scrolled(e.target)&&e.cancelable)e.preventDefault();
+  },{passive:false});
+})();
+
 /* ===== 시작 ===== */
 (async()=>{
   hydrateIcons();applyBrand();
   await gate();
   await openDB();await render();
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
-  classifyQueue();syncSoon(200);
-  window.addEventListener('online',()=>syncSoon(500));
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSoon(300)});
+  classifyQueue();sync();                       // 시작 시 1회: 서버 내용 불러오기
+  setInterval(autoSync,30e3);                   // 5분 경과 여부를 30초마다 확인
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)autoSync()});
 })();
 </script>
 </body>
